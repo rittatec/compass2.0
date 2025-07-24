@@ -1,26 +1,120 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState} from "react";
+import { View, Text, TextInput, Alert, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { fazerLogin } from "../services/loginServise";
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+
+//tela de login com implantação do axios (porem a validação do usuario e senha ainda n estao funcionando, nem a rota para tela de cadastro)
 
 export default function Login() {
-  const navigation = useNavigation();
+
+  const [usuario, setUsuario] = useState("");
+  const [senha, setSenha] = useState("");
+  type RootStackParamList = {
+    Cadastro: undefined;
+    // aparentemente esse rottstack é usado pelo ts para navegar entre telas
+  };
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const handleLogin = async () => {
+    try {
+      const dados = await fazerLogin(usuario, senha);
+      const usuarioDados = dados as { nome: string }; // Adiciona type assertion
+      Alert.alert("Login bem-sucedido", `Bem-vindo, ${usuarioDados.nome}!`);
+      navigation.navigate('Cadastro');
+      // Aqui você pode navegar para a próxima tela ou armazenar o token
+    } catch (error) {
+      Alert.alert("Erro no login");
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login Screen</Text>
+      {/* Logo */}
+      <Image
+        source={require("../assets/logo.png")} // Imagem da logo
+        style={styles.logoImage}
+      />
+
+      {/* Título */}
+      <Text style={styles.loginTitle}>Login</Text>
+      <Text style={styles.subTitle}>Bem vindo(a) de volta! </Text>
+
+      {/* Campos de entrada */}
+      <TextInput
+        placeholder="Usuário"
+        value={usuario}
+        onChangeText={setUsuario}
+        autoCapitalize="none"
+        style={styles.input}
+        placeholderTextColor="#999"
+      />
+      <TextInput
+        placeholder="Senha"
+        value={senha}
+        onChangeText={setSenha}
+        style={styles.input}
+        secureTextEntry
+        placeholderTextColor="#999"
+      />
+
+      {/* Botão */}
+      <TouchableOpacity
+        style={styles.button} onPress={() => {handleLogin}}
+      >
+        <Text style={styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#F9F9F9",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
+  logoImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 30,
+    resizeMode: "contain",
   },
-});
+  loginTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  subTitle: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 30,
+    marginTop: 5,
+  },
+  input: {
+    backgroundColor: "#F0F0F0",
+    width: "100%",
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  button: {
+    backgroundColor: "#3B55A1",
+    paddingVertical: 15,
+    width: "100%",
+    borderRadius: 15,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: "#FFF",
+    fontWeight: "bold",
+  },
+})
