@@ -59,7 +59,7 @@ export default function Login() {
       />
 
       {/* Botão */}
-      // essa bobonica desse botao que eu nao lembrava dele eu tava fazendo TUDO errado pq tava chamando a funcao errada nesse carai
+      {/* // essa bobonica desse botao que eu nao lembrava dele eu tava fazendo TUDO errado pq tava chamando a funcao errada nesse carai */}
       <TouchableOpacity
         style={styles.button} onPress={handleLogin}
       >
