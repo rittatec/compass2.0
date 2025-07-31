@@ -19,12 +19,12 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       const dados = await fazerLogin(usuario, senha);
-      const usuarioDados = dados as { nome: string }; // Adiciona type assertion
-      Alert.alert("Login bem-sucedido", `Bem-vindo, ${usuarioDados.nome}!`);
-      navigation.navigate('Cadastro');
-      // Aqui você pode navegar para a próxima tela ou armazenar o token
-    } catch (error) {
-      Alert.alert("Erro no login");
+      const { nome } = dados as { nome: string };
+      // fiz um rebuliço aqui pra pegar o nome do usuario, mas n sei se é a melhor forma
+      Alert.alert('Login realizado!', `Bem-vindo(a), ${nome}`);
+      navigation.navigate('Cadastro'); // Navega para a tela de Cadastro POR ENQUANTO QUE NAO FIZ A DE MENU
+    } catch (erro: any) {
+      Alert.alert('Erro no login', erro.message);
     }
   };
 
@@ -59,8 +59,9 @@ export default function Login() {
       />
 
       {/* Botão */}
+      // essa bobonica desse botao que eu nao lembrava dele eu tava fazendo TUDO errado pq tava chamando a funcao errada nesse carai
       <TouchableOpacity
-        style={styles.button} onPress={() => {handleLogin}}
+        style={styles.button} onPress={handleLogin}
       >
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
