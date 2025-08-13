@@ -10,7 +10,7 @@ export default function Login() {
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   type RootStackParamList = {
-    Cadastro: undefined;
+    Menu: undefined;
     // aparentemente esse rottstack é usado pelo ts para navegar entre telas
   };
 
@@ -22,7 +22,7 @@ export default function Login() {
       const { nome } = dados as { nome: string };
       // fiz um rebuliço aqui pra pegar o nome do usuario, mas n sei se é a melhor forma
       Alert.alert('Login realizado!', `Bem-vindo(a), ${nome}`);
-      navigation.navigate('Cadastro'); // Navega para a tela de Cadastro POR ENQUANTO QUE NAO FIZ A DE MENU
+      navigation.navigate('Menu'); // Navega para a tela de Menu
     } catch (erro: any) {
       Alert.alert('Erro no login', erro.message);
     }
