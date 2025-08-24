@@ -27,8 +27,6 @@ export default function Energia() {
       navigation.navigate("Menu");
     } catch (error: any) {
       Alert.alert("Erro", error.message);
-    }
-  };
 
   return (
     <View style={styles.container}>
