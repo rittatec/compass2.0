@@ -1,17 +1,24 @@
-// src/services/wifiService.ts
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3000'; // ajuste conforme seu back-end
+// services/wifiService.ts
 
 export interface WifiData {
-  amount: number;
+  amount: number; // valor que será debitado
 }
 
-export const salvarWifi = async (data: WifiData) => {
+// Função simulando integração com backend
+export async function salvarWifi(data: WifiData) {
   try {
-    const response = await axios.post(`${API_URL}/wifi`, data);
-    return response.data;
+    // Simula uma chamada ao backend (POST /wifi)
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          message: "Pagamento do wifi salvo com sucesso.",
+          data,
+        });
+      }, 1000); // atraso de 1 segundo para parecer requisição real
+    });
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Erro ao salvar valor do WiFi');
+    console.error("Erro ao salvar valor do wifi:", error.message);
+    throw new Error("Não foi possível salvar o pagamento do wifi.");
   }
-};
+}

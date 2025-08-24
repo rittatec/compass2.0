@@ -1,17 +1,24 @@
-// src/services/extraService.ts
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3000'; // ajuste para o endereço do seu back-end
+// services/energiaService.ts
 
 export interface ExtraData {
-  amount: number;
+  amount: number; // valor que será somado
 }
 
-export const salvarExtra = async (data: ExtraData) => {
+// Função simulando integração com backend
+export async function salvarExtra(data: ExtraData) {
   try {
-    const response = await axios.post(`${API_URL}/extra`, data);
-    return response.data;
+    // Simula uma chamada ao backend (POST /extra)
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          message: "Valor de renda extra salvo com sucesso.",
+          data,
+        });
+      }, 1000); // atraso de 1 segundo para parecer requisição real
+    });
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Erro ao salvar valor de Extra');
+    console.error("Erro ao salvar valor da renda extra:", error.message);
+    throw new Error("Não foi possível salvar o valor da renda extra.");
   }
-};
+}

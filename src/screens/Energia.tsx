@@ -23,10 +23,12 @@ export default function Energia() {
   try {
       await salvarEnergia({ amount: valor });
       debitarRenda(valor); // debita da renda global 
-      Alert.alert("Sucesso", `Valor da Energia salvo: R$ ${valor.toFixed(2)}`);
+      Alert.alert("Sucesso", `Valor de energia salvo: R$ ${valor.toFixed(2)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
       Alert.alert("Erro", error.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
