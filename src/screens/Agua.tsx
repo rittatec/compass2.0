@@ -1,23 +1,29 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarAgua } from '../services/aguaService'; // ajuste o caminho conforme sua estrutura
-
-// tela com axios e com a navegação pro aguaService porem ainda nao esta debitando da renda mensal o valor que o usuario insere na tela 
+import { salvarAgua } from '../services/aguaService'; // serviço simulado
 
 type RootStackParamList = {
   Menu: undefined;
 };
 
 export default function Agua() {
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(''); // valor digitado pelo usuário (string)
+  const [income, setIncome] = useState<number>(2000); // renda mensal inicial simulada
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleSave = async () => {
+    const valor = parseFloat(amount); // converte string para number
+    if (isNaN(valor) || valor <= 0) {
+      Alert.alert('Erro', 'Digite um valor válido!');
+      return;
+    }
+
     try {
-      await salvarAgua({ amount });
-      Alert.alert('Sucesso', `Valor de água salvo: R$ ${amount}`);
-      navigation.navigate('Menu');
+      await salvarAgua({ amount: valor }); // envia número para o serviço
+      setIncome(prev => prev - valor);     // debita da renda mensal
+      Alert.alert('Sucesso', `Valor de água salvo: R$ ${valor.toFixed(2)}`);
+      navigation.navigate('Menu');         // volta para o Menu
     } catch (error: any) {
       Alert.alert('Erro', error.message);
     }
@@ -30,7 +36,7 @@ export default function Agua() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ 0,00</Text>
+          <Text style={styles.income}>R$ {income.toFixed(2)}</Text>
         </View>
       </View>
 
@@ -53,77 +59,16 @@ export default function Agua() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  card: {
-    backgroundColor: '#3A53A4',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 30,
-  },
-  subtitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  incomeBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  income: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  paymentBox: {
-    backgroundColor: '#F7F7F7',
-    borderRadius: 20,
-    padding: 25,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  paymentTitle: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  paymentLabel: {
-    textAlign: 'center',
-    fontSize: 20,
-    marginBottom: 15,
-  },
-  input: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#4CAF50',
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    textAlign: 'center',
-    marginBottom: 40,
-  },
-  saveButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    borderRadius: 25,
-    alignItems: 'center',
-  },
-  saveText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 20,
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  title: { fontSize: 30, fontWeight: 'bold', marginBottom: 20 },
+  card: { backgroundColor: '#3A53A4', borderRadius: 12, padding: 20, marginBottom: 30 },
+  subtitle: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 5 },
+  incomeBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  income: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
+  paymentBox: { backgroundColor: '#F7F7F7', borderRadius: 20, padding: 25, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
+  paymentTitle: { fontSize: 25, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  paymentLabel: { textAlign: 'center', fontSize: 20, marginBottom: 15 },
+  input: { borderBottomWidth: 2, borderBottomColor: '#4CAF50', fontSize: 22, fontWeight: 'bold', color: '#4CAF50', textAlign: 'center', marginBottom: 40 },
+  saveButton: { backgroundColor: '#4CAF50', paddingVertical: 12, borderRadius: 25, alignItems: 'center' },
+  saveText: { color: '#fff', fontWeight: 'bold', fontSize: 20 },
 });
-

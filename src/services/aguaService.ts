@@ -1,18 +1,24 @@
-import axios from 'axios';
+// services/aguaService.ts
 
-interface AguaData {
-  amount: string;
+export interface AguaData {
+  amount: number; // valor que será debitado
 }
 
-const api = axios.create({
-  baseURL: 'http://SEU_BACKEND_URL_AQUI/api', // ajuste para seu backend
-});
-
+// Função simulando integração com backend
 export async function salvarAgua(data: AguaData) {
   try {
-    const response = await api.post('/agua', data);
-    return response.data;
+    // Simula uma chamada ao backend (POST /agua)
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          message: "Pagamento de água salvo com sucesso.",
+          data,
+        });
+      }, 1000); // atraso de 1 segundo para parecer requisição real
+    });
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Erro ao salvar valor de água');
+    console.error("Erro ao salvar água:", error.message);
+    throw new Error("Não foi possível salvar o pagamento da água.");
   }
 }
