@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRenda } from "../context/RendaContext";
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { salvarAgua } from '../services/aguaService'; // serviço simulado
@@ -8,24 +9,24 @@ type RootStackParamList = {
 };
 
 export default function Agua() {
-  const [amount, setAmount] = useState(''); // valor digitado pelo usuário (string)
-  const [income, setIncome] = useState<number>(2000); // renda mensal inicial simulada
+  const [amount, setAmount] = useState("");
+  const { rendaMensal, debitarRenda } = useRenda(); // ✅ pega renda global
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleSave = async () => {
-    const valor = parseFloat(amount); // converte string para number
+    const valor = parseFloat(amount);
     if (isNaN(valor) || valor <= 0) {
-      Alert.alert('Erro', 'Digite um valor válido!');
+      Alert.alert("Erro", "Digite um valor válido!");
       return;
     }
 
-    try {
-      await salvarAgua({ amount: valor }); // envia número para o serviço
-      setIncome(prev => prev - valor);     // debita da renda mensal
-      Alert.alert('Sucesso', `Valor de água salvo: R$ ${valor.toFixed(2)}`);
-      navigation.navigate('Menu');         // volta para o Menu
+  try {
+      await salvarAgua({ amount: valor });
+      debitarRenda(valor); // ✅ debita da renda global
+      Alert.alert("Sucesso", `Valor de água salvo: R$ ${valor.toFixed(2)}`);
+      navigation.navigate("Menu");
     } catch (error: any) {
-      Alert.alert('Erro', error.message);
+      Alert.alert("Erro", error.message);
     }
   };
 
@@ -36,7 +37,7 @@ export default function Agua() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ {income.toFixed(2)}</Text>
+          <Text style={styles.income}>R$ {rendaMensal.toFixed(2)}</Text>
         </View>
       </View>
 

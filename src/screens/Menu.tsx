@@ -1,49 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from "react-native";
+import type { ColorValue } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRenda } from "../context/RendaContext";
 
 export default function Menu() {
   const navigation = useNavigation<any>();
-  const [rendaMensal, setRendaMensal] = useState<number>(0);
-
-  // Simula fetch do backend
-  const fetchRendaMensal = async () => {
-    try {
-      const response = await new Promise<{ renda: number }>((resolve) => {
-        setTimeout(() => {
-          resolve({ renda: 2543.75 }); // valor de exemplo enquanto n juntamos o backend
-        }, 1000);
-      });
-      setRendaMensal(response.renda);
-    } catch (error) {
-      console.error("Erro ao buscar renda mensal:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchRendaMensal();
-  }, []);
+  const { rendaMensal } = useRenda(); // pega do contexto da renda
 
   // Arrays para mapear os itens
+
   const pagamentos = [
-    { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"], screen: "Agua" },
-    { name: "Energia", icon: <MaterialIcons name="bolt" size={35} color="#fff" />, colors: ["#4CAF50", "#2E7D32"], screen: "Energia" },
-    { name: "Wi-Fi", icon: <Ionicons name="wifi" size={35} color="#fff" />, colors: ["#BA68C8", "#6A1B9A"], screen: "Wifi" },
-    { name: "Alimento", icon: <MaterialIcons name="restaurant" size={35} color="#fff" />, colors: ["#FF8A65", "#D84315"], screen: "Alimento" },
+    { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"] as readonly [ColorValue, ColorValue], screen: "Agua" },
+    { name: "Energia", icon: <MaterialIcons name="bolt" size={35} color="#fff" />, colors: ["#4CAF50", "#2E7D32"] as readonly [ColorValue, ColorValue], screen: "Energia" },
+    { name: "Wi-Fi", icon: <Ionicons name="wifi" size={35} color="#fff" />, colors: ["#BA68C8", "#6A1B9A"] as readonly [ColorValue, ColorValue], screen: "Wifi" },
+    { name: "Alimento", icon: <MaterialIcons name="restaurant" size={35} color="#fff" />, colors: ["#FF8A65", "#D84315"] as readonly [ColorValue, ColorValue], screen: "Alimento" },
   ];
 
   const categorias = [
-    { name: "Extra", icon: <MaterialIcons name="attach-money" size={28} color="#fff" />, colors: ["#8E24AA", "#4A148C"], screen: "Extra" },
-    { name: "Poupança", icon: <FontAwesome name="bank" size={28} color="#fff" />, colors: ["#26A69A", "#004D40"], screen: "Poupanca" },
-    { name: "Investido", icon: <MaterialCommunityIcons name="finance" size={28} color="#fff" />, colors: ["#FFD54F", "#F57F17"], screen: "Investido" },
-    { name: "Receber", icon: <MaterialCommunityIcons name="cash-plus" size={28} color="#fff" />, colors: ["#FF7043", "#BF360C"], screen: "Receber" },
-    { name: "Saúde", icon: <FontAwesome name="heartbeat" size={28} color="#fff" />, colors: ["#E91E63", "#880E4F"], screen: "Saude" },
+    { name: "Extra", icon: <MaterialIcons name="attach-money" size={28} color="#fff" />, colors: ["#8E24AA", "#4A148C"] as readonly [ColorValue, ColorValue], screen: "Extra" },
+    { name: "Poupança", icon: <FontAwesome name="bank" size={28} color="#fff" />, colors: ["#26A69A", "#004D40"] as readonly [ColorValue, ColorValue], screen: "Poupanca" },
+    { name: "Investido", icon: <MaterialCommunityIcons name="finance" size={28} color="#fff" />, colors: ["#FFD54F", "#F57F17"] as readonly [ColorValue, ColorValue], screen: "Investido" },
+    { name: "Receber", icon: <MaterialCommunityIcons name="cash-plus" size={28} color="#fff" />, colors: ["#FF7043", "#BF360C"] as readonly [ColorValue, ColorValue], screen: "Receber" },
+    { name: "Saúde", icon: <FontAwesome name="heartbeat" size={28} color="#fff" />, colors: ["#E91E63", "#880E4F"] as readonly [ColorValue, ColorValue], screen: "Saude" },
   ];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+ <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.welcome}>Bem vindo(a), Cliente.</Text>
 
       <View style={[styles.card, styles.shadow]}>
@@ -51,11 +36,13 @@ export default function Menu() {
           <Text style={styles.cardTitle}>Renda Mensal</Text>
           <Text style={styles.cardValue}>R$ {rendaMensal.toFixed(2)}</Text>
         </View>
-        <TouchableOpacity style={styles.buttonAlterar}>
+        <TouchableOpacity 
+          style={styles.buttonAlterar}
+          onPress={() => navigation.navigate("AlterarRenda")} // futuramente tela de alterar
+        >
           <Text style={styles.buttonText}>Alterar</Text>
         </TouchableOpacity>
       </View>
-
       <Text style={styles.sectionTitle}>Pagamentos mensais</Text>
       <View style={styles.grid}>
         {pagamentos.map((item, index) => (
