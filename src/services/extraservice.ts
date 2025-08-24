@@ -1,4 +1,4 @@
-// services/energiaService.ts
+// services/extraService.ts
 
 export interface ExtraData {
   amount: number; // valor que será somado
