@@ -1,30 +1,32 @@
-import { useState } from 'react';
+import { useRenda } from "../context/RendaContext";
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarAlimento } from '../services/AlimentoService'; // serviço com Axios
+import { salvarFeira } from '../services/feiraService'; // serviço simulado
 
 type RootStackParamList = {
   Menu: undefined;
 };
 
-export default function Alimento() {
-  const [amount, setAmount] = useState(''); // input do usuário
+export default function Feira() {
+  const [amount, setAmount] = useState("");
+  const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleSave = async () => {
-    const valor = parseFloat(amount); // converte string -> number
+    const valor = parseFloat(amount);
     if (isNaN(valor) || valor <= 0) {
-      Alert.alert('Erro', 'Digite um valor válido!');
+      Alert.alert("Erro", "Digite um valor válido!");
       return;
     }
 
-    try {
-      // envia para o backend via Axios
-      await salvarAlimento({ amount: valor });
-      Alert.alert('Sucesso', `Valor de Alimento salvo: R$ ${valor.toFixed(2)}`);
-      navigation.navigate('Menu'); // volta para a tela Menu
+  try {
+      await salvarFeira({ amount: valor });
+      debitarRenda(valor); // debita da renda global 
+      Alert.alert("Sucesso", `Valor da Feira salvo: R$ ${valor.toFixed(2)}`);
+      navigation.navigate("Menu");
     } catch (error: any) {
-      Alert.alert('Erro', error.message);
+      Alert.alert("Erro", error.message);
     }
   };
 
@@ -35,12 +37,12 @@ export default function Alimento() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ 0,00</Text>
+          <Text style={styles.income}>R$ {rendaMensal.toFixed(2)}</Text>
         </View>
       </View>
 
       <View style={styles.paymentBox}>
-        <Text style={styles.paymentTitle}>Alimento</Text>
+        <Text style={styles.paymentTitle}>Feira</Text>
         <Text style={styles.paymentLabel}>Insira o valor:</Text>
         <TextInput
           style={styles.input}

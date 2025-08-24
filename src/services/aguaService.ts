@@ -18,7 +18,7 @@ export async function salvarAgua(data: AguaData) {
       }, 1000); // atraso de 1 segundo para parecer requisição real
     });
   } catch (error: any) {
-    console.error("Erro ao salvar água:", error.message);
+    console.error("Erro ao salvar valor da água:", error.message);
     throw new Error("Não foi possível salvar o pagamento da água.");
   }
 }

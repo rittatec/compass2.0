@@ -10,7 +10,7 @@ type RootStackParamList = {
 
 export default function Agua() {
   const [amount, setAmount] = useState("");
-  const { rendaMensal, debitarRenda } = useRenda(); // ✅ pega renda global
+  const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleSave = async () => {
@@ -22,7 +22,7 @@ export default function Agua() {
 
   try {
       await salvarAgua({ amount: valor });
-      debitarRenda(valor); // ✅ debita da renda global
+      debitarRenda(valor); // debita da renda global 
       Alert.alert("Sucesso", `Valor de água salvo: R$ ${valor.toFixed(2)}`);
       navigation.navigate("Menu");
     } catch (error: any) {

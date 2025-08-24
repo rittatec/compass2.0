@@ -4,6 +4,7 @@ type RendaContextType = {
   rendaMensal: number;
   setRendaMensal: (valor: number) => void;
   debitarRenda: (valor: number) => void;
+  somarRenda: (valor: number) => void;
 };
 
 const RendaContext = createContext<RendaContextType | undefined>(undefined);
@@ -15,8 +16,13 @@ export const RendaProvider = ({ children }: { children: ReactNode }) => {
     setRendaMensal((prev) => prev - valor);
   };
 
+  const somarRenda = (valor: number) => {
+    setRendaMensal((prev) => prev + valor);
+  };
+
+
   return (
-    <RendaContext.Provider value={{ rendaMensal, setRendaMensal, debitarRenda }}>
+    <RendaContext.Provider value={{ rendaMensal, setRendaMensal, debitarRenda, somarRenda }}>
       {children}
     </RendaContext.Provider>
   );

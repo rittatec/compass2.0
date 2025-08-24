@@ -11,12 +11,14 @@ import Menu from "../screens/Menu";
 import Agua from "../screens/Agua";
 import Energia from "../screens/Energia";
 import Wifi from "../screens/Wifi";
-import Alimento from "../screens/Alimento";
+import Feira from "../screens/Feira";
 import Extra from  "../screens/Extra";
 import Poupanca from "../screens/Poupanca";
 import Investido from "../screens/Investido";
 import Receber from "../screens/Receber";
 import Saude from "../screens/Saude";
+import AlterarRenda from "../screens/AlterarRenda";
+
 
 // Importação das telas com tab
 import Orcamento from "../screens/Orcamento";
@@ -92,12 +94,18 @@ export default function AppRoutes() {
         component={TabRoutes} 
         options={{ headerShown: false }} 
       />
+      <Stack.Screen 
+        name="AlterarRenda" 
+        component={AlterarRenda} 
+        options={{ title: "Alterar Renda" }}
+      />
+
 
       {/* Telas de categorias chamadas a partir do Menu */}
       <Stack.Screen name="Agua" component={Agua} />
       <Stack.Screen name="Energia" component={Energia} />
       <Stack.Screen name="Wifi" component={Wifi} />
-      <Stack.Screen name="Alimento" component={Alimento} />
+      <Stack.Screen name="Feira" component={Feira} />
       <Stack.Screen name="Extra" component={Extra} />
       <Stack.Screen name="Poupanca" component={Poupanca} /> 
       <Stack.Screen name="Investido" component={Investido} />

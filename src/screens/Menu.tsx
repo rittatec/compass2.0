@@ -16,7 +16,7 @@ export default function Menu() {
     { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"] as readonly [ColorValue, ColorValue], screen: "Agua" },
     { name: "Energia", icon: <MaterialIcons name="bolt" size={35} color="#fff" />, colors: ["#4CAF50", "#2E7D32"] as readonly [ColorValue, ColorValue], screen: "Energia" },
     { name: "Wi-Fi", icon: <Ionicons name="wifi" size={35} color="#fff" />, colors: ["#BA68C8", "#6A1B9A"] as readonly [ColorValue, ColorValue], screen: "Wifi" },
-    { name: "Alimento", icon: <MaterialIcons name="restaurant" size={35} color="#fff" />, colors: ["#FF8A65", "#D84315"] as readonly [ColorValue, ColorValue], screen: "Alimento" },
+    { name: "Feira", icon: <MaterialIcons name="restaurant" size={35} color="#fff" />, colors: ["#FF8A65", "#D84315"] as readonly [ColorValue, ColorValue], screen: "Feira" },
   ];
 
   const categorias = [
