@@ -4,21 +4,28 @@ export interface FeiraData {
   amount: number; // valor que será debitado
 }
 
-// Função simulando integração com backend
+// Simula armazenamento local do valor da feira
+let feiraStorage: FeiraData = { amount: 0 };
+
+// Função para salvar o valor da feira
 export async function salvarFeira(data: FeiraData) {
-  try {
-    // Simula uma chamada ao backend (POST /feira)
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          message: "Pagamento da feira salvo com sucesso.",
-          data,
-        });
-      }, 1000); // atraso de 1 segundo para parecer requisição real
-    });
-  } catch (error: any) {
-    console.error("Erro ao salvar valor da feira:", error.message);
-    throw new Error("Não foi possível salvar o pagamento da feira.");
-  }
+  return new Promise<{ success: boolean; message: string; data: FeiraData }>((resolve) => {
+    setTimeout(() => {
+      feiraStorage = data; // atualiza o "banco"
+      resolve({
+        success: true,
+        message: "Pagamento da feira salvo com sucesso.",
+        data,
+      });
+    }, 1000); // atraso de 1 segundo para simular backend
+  });
+}
+
+// Função para obter o valor da feira
+export async function getFeira(): Promise<FeiraData> {
+  return new Promise<FeiraData>((resolve) => {
+    setTimeout(() => {
+      resolve(feiraStorage);
+    }, 300); // atraso rápido para simular leitura
+  });
 }

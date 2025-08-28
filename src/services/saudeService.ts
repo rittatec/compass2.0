@@ -1,24 +1,31 @@
-// services/poupancaService.ts
+// services/saudeService.ts
 
 export interface SaudeData {
   amount: number; // valor que será debitado
 }
 
-// Função simulando integração com backend
+// Simula armazenamento local do valor de saúde
+let saudeStorage: SaudeData = { amount: 0 };
+
+// Função para salvar o valor de saúde
 export async function salvarSaude(data: SaudeData) {
-  try {
-    // Simula uma chamada ao backend (POST /saude)
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          message: "Valor para reservar pra saúde salvo com sucesso.",
-          data,
-        });
-      }, 1000); // atraso de 1 segundo para parecer requisição real
-    });
-  } catch (error: any) {
-    console.error("Erro ao salvar valor para reservar pra saúde:", error.message);
-    throw new Error("Não foi possível salvar o valor para reservar pra saúde .");
-  }
+  return new Promise<{ success: boolean; message: string; data: SaudeData }>((resolve) => {
+    setTimeout(() => {
+      saudeStorage = data; // atualiza o "banco"
+      resolve({
+        success: true,
+        message: "Valor para reservar pra saúde salvo com sucesso.",
+        data,
+      });
+    }, 1000); // atraso de 1 segundo para simular backend
+  });
+}
+
+// Função para obter o valor de saúde
+export async function getSaude(): Promise<SaudeData> {
+  return new Promise<SaudeData>((resolve) => {
+    setTimeout(() => {
+      resolve(saudeStorage);
+    }, 300); // atraso rápido para simular leitura
+  });
 }

@@ -4,21 +4,28 @@ export interface EnergiaData {
   amount: number; // valor que será debitado
 }
 
-// Função simulando integração com backend
+// Simula armazenamento local do valor de energia
+let energiaStorage: EnergiaData = { amount: 0 };
+
+// Função para salvar o valor da energia
 export async function salvarEnergia(data: EnergiaData) {
-  try {
-    // Simula uma chamada ao backend (POST /energia)
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          message: "Pagamento de energia salvo com sucesso.",
-          data,
-        });
-      }, 1000); // atraso de 1 segundo para parecer requisição real
-    });
-  } catch (error: any) {
-    console.error("Erro ao salvar valor da energia:", error.message);
-    throw new Error("Não foi possível salvar o pagamento da energia.");
-  }
+  return new Promise<{ success: boolean; message: string; data: EnergiaData }>((resolve) => {
+    setTimeout(() => {
+      energiaStorage = data; // atualiza o "banco"
+      resolve({
+        success: true,
+        message: "Pagamento de energia salvo com sucesso.",
+        data,
+      });
+    }, 1000); // atraso de 1 segundo para simular backend
+  });
+}
+
+// Função para obter o valor da energia
+export async function getEnergia(): Promise<EnergiaData> {
+  return new Promise<EnergiaData>((resolve) => {
+    setTimeout(() => {
+      resolve(energiaStorage);
+    }, 300); // atraso rápido para simular leitura
+  });
 }
