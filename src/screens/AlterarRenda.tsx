@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet,} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useRenda } from "../context/RendaContext";
-// import axios from "axios"; // descomente quando for usar backend real
 
 export default function AlterarRenda() {
   const { rendaMensal, setRendaMensal } = useRenda();

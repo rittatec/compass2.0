@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-// Aqui vou colocar a URL real da  API quando eu tiver essa url
+// Aqui vou colocar a URL real da API quando eu tiver essa url
 const API_URL = 'https://sua-api.com/api/usuarios';
 
 export async function cadastrarUsuario(usuario: {
