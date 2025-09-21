@@ -1,5 +1,13 @@
 //tela onde estou testando a implatação do axios (ainda n esta funcionando)
 
+import { setUser } from "../../App";
+import { api } from "./api";
+
+interface UserType {
+  nome: string,
+  renda: number
+}
+
 const usuarioFake = {
   user: 'admin',
   senha: '123456',
@@ -7,7 +15,18 @@ const usuarioFake = {
   token: 'fake-jwt-token',
 };
 
-export async function fazerLogin(user: string, senha: string) {
+export async function fazerLogin(nome: string, senha: string) {
+  const idResponse = await api.post("veirficar_usuario", {
+    nome, 
+    senha
+  });
+
+  const userResponse = await api.get<UserType>(`/conta/por_usuario/${idResponse.data}`);
+
+  setUser(userResponse.data);
+}
+
+/* export async function fazerLogin(user: string, senha: string) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (user === usuarioFake.user && senha === usuarioFake.senha) {
@@ -21,4 +40,4 @@ export async function fazerLogin(user: string, senha: string) {
       }
     }, 800);
   });
-}
+} */

@@ -3,11 +3,11 @@ import { View, Text, TextInput, Alert, TouchableOpacity, Image, StyleSheet } fro
 import { fazerLogin } from "../services/loginServise";
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 
-//tela de login com implantação do axios (porem a validação do usuario e senha ainda n estao funcionando, nem a rota para tela de cadastro)
+//tela de login com implantação do axios (porem a validação do nome e senha ainda n estao funcionando, nem a rota para tela de cadastro)
 
 export default function Login() {
 
-  const [usuario, setUsuario] = useState("");
+  const [nome, setnome] = useState("");
   const [senha, setSenha] = useState("");
   type RootStackParamList = {
     Menu: undefined;
@@ -18,9 +18,9 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const dados = await fazerLogin(usuario, senha);
-      const { nome } = dados as { nome: string };
-      // fiz um rebuliço aqui pra pegar o nome do usuario, mas n sei se é a melhor forma
+      await fazerLogin(nome, senha); // Execução da api que vai preencher no useState user as informações de nome e renda do usuário. 
+      
+      // fiz um rebuliço aqui pra pegar o nome do nome, mas n sei se é a melhor forma
       Alert.alert('Login realizado!', `Bem-vindo(a), ${nome}`);
       navigation.navigate('Menu'); // Navega para a tela de Menu
     } catch (erro: any) {
@@ -43,8 +43,8 @@ export default function Login() {
       {/* Campos de entrada */}
       <TextInput
         placeholder="Usuário"
-        value={usuario}
-        onChangeText={setUsuario}
+        value={nome}
+        onChangeText={setnome}
         autoCapitalize="none"
         style={styles.input}
         placeholderTextColor="#999"
