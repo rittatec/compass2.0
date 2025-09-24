@@ -12,25 +12,16 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { RendaProvider } from "./src/context/RendaContext";
 import AppRoutes from "./src/routes/Approutes"
-import { createContext, useState } from 'react';
-
-interface ContextType {
-  nome: string,
-  renda: number
-}
-
-export const Contexto = createContext<ContextType>({} as ContextType);
-
-export const [user, setUser] = useState<ContextType>({ nome: "Não Informado", renda: 0});
+import { UserProvider } from './src/context/userContext';
 
 export default function App() {
   return (
-    <Contexto.Provider value={user}>
+    <UserProvider>
       <RendaProvider>
         <NavigationContainer>
           <AppRoutes />
         </NavigationContainer>
       </RendaProvider>
-    </Contexto.Provider>
+    </UserProvider>
   );
 }

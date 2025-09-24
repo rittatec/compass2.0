@@ -1,17 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from "react-native";
 import type { ColorValue } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRenda } from "../context/RendaContext";
+import { UserContext } from "../context/userContext";
 
 export default function Menu() {
   const navigation = useNavigation<any>();
   const { rendaMensal } = useRenda(); // pega do contexto da renda
 
-  // Arrays para mapear os itens
+  // variáveis com os valores de nome e renda da conta.
+  const [contaNome, setContaNome] = useState<string | undefined>("")
+  const [contaRenda, setContaRenda] = useState<number | undefined>(0)
 
+  // Importação do contexto com o usuário recebido da api.
+  const user = useContext(UserContext);
+
+  useEffect(() => {
+    setContaNome(user?.user.nome);
+    setContaRenda(user?.user.renda)
+  }, [])
+
+  // Arrays para mapear os itens
+ 
   const pagamentos = [
     { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"] as readonly [ColorValue, ColorValue], screen: "Agua" },
     { name: "Energia", icon: <MaterialIcons name="bolt" size={35} color="#fff" />, colors: ["#4CAF50", "#2E7D32"] as readonly [ColorValue, ColorValue], screen: "Energia" },
@@ -29,7 +42,7 @@ export default function Menu() {
 
   return (
  <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.welcome}>Bem vindo(a), Cliente.</Text>
+      <Text style={styles.welcome}>Bem vindo(a), {contaNome}.</Text>
 
       <View style={[styles.card, styles.shadow]}>
         <View>
