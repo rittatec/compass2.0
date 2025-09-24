@@ -1,7 +1,8 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import { View, Text, TextInput, Alert, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { fazerLogin } from "../services/loginServise";
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { UserContext } from "../context/userContext";
 
 //tela de login com implantação do axios (porem a validação do nome e senha ainda n estao funcionando, nem a rota para tela de cadastro)
 
@@ -14,12 +15,15 @@ export default function Login() {
     // aparentemente esse rottstack é usado pelo ts para navegar entre telas
   };
 
+  const user = useContext(UserContext); // importação do contexto que retorna o usuário.
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleLogin = async () => {
     try {
-      await fazerLogin(nome, senha); // Execução da api que vai preencher no useState user as informações de nome e renda do usuário. 
-      
+      const userResponse = await fazerLogin(nome, senha); // Execução da api que vai preencher no useState user as informações de nome e renda do usuário. 
+      user?.setUser(userResponse);
+
       // fiz um rebuliço aqui pra pegar o nome do nome, mas n sei se é a melhor forma
       Alert.alert('Login realizado!', `Bem-vindo(a), ${nome}`);
       navigation.navigate('Menu'); // Navega para a tela de Menu
