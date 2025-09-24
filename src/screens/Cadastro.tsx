@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from "react-native"
 import { Feather } from "@expo/vector-icons";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { NavigationProp } from "@react-navigation/native";
 
 type RootStackParamList = {
   Login: undefined;
@@ -21,9 +21,9 @@ export default function Cadastrar({ navigation }: { navigation: NavigationProp<R
   const handleCadastro = async () => {
     try {
       await cadastrarUsuario({ 
-        user: username, // nome de usuário
         senha,
-        nome: username // ou use outro campo para nome real, se quiser
+        nome: username, // nome de usuário
+        email,
       });
       Alert.alert("Cadastro realizado!", "Você pode fazer login agora.");
       navigation.navigate("Login");
