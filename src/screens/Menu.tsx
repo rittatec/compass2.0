@@ -9,10 +9,10 @@ import { UserContext } from "../context/userContext";
 
 export default function Menu() {
   const navigation = useNavigation<any>();
-  const { rendaMensal } = useRenda(); // pega do contexto da renda
+  // const { rendaMensal } = useRenda(); // pega do contexto do usuário.
 
   // variáveis com os valores de nome e renda da conta.
-  const [contaNome, setContaNome] = useState<string | undefined>("")
+  const [contaNome, setContaNome] = useState<string | undefined>("Visitante")
   const [contaRenda, setContaRenda] = useState<number | undefined>(0)
 
   // Importação do contexto com o usuário recebido da api.
@@ -47,7 +47,7 @@ export default function Menu() {
       <View style={[styles.card, styles.shadow]}>
         <View>
           <Text style={styles.cardTitle}>Renda Mensal</Text>
-          <Text style={styles.cardValue}>R$ {rendaMensal.toFixed(2)}</Text>
+          <Text style={styles.cardValue}>R$ {contaRenda?.toFixed(2)}</Text>
         </View>
         <TouchableOpacity 
           style={styles.buttonAlterar}
