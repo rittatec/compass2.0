@@ -1,8 +1,9 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { View, Text, TextInput, Alert, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { fazerLogin } from "../services/loginServise";
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { UserContext } from "../context/userContext";
+import { api } from "../services/api";
 
 //tela de login com implantação do axios (porem a validação do nome e senha ainda n estao funcionando, nem a rota para tela de cadastro)
 
@@ -18,6 +19,13 @@ export default function Login() {
   const user = useContext(UserContext); // importação do contexto que retorna o usuário.
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+
+  useEffect(() => {
+    async function getResponse() {
+        const response = await api.get("/conta/por_usuario/{idUsuario}", )
+    }
+  })
 
   const handleLogin = async () => {
     try {

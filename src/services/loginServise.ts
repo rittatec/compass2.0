@@ -5,6 +5,7 @@ import { UserContext } from "../context/userContext";
 import { api } from "./api";
 
 interface UserType {
+  id: number
   nome: string,
   renda: number
 }
