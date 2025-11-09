@@ -1,58 +1,53 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TextInput, Alert, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { fazerLogin } from "../services/loginServise";
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { UserContext } from "../context/userContext";
 import { api } from "../services/api";
 
-//tela de login com implantação do axios (porem a validação do nome e senha ainda n estao funcionando, nem a rota para tela de cadastro)
-
 export default function Login() {
-
   const [nome, setnome] = useState("");
   const [senha, setSenha] = useState("");
+
   type RootStackParamList = {
     Menu: undefined;
-    // aparentemente esse rottstack é usado pelo ts para navegar entre telas
+    RecuperarSenha: undefined; // caso queira criar uma tela futura
   };
 
-  const user = useContext(UserContext); // importação do contexto que retorna o usuário.
-
+  const user = useContext(UserContext);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
 
   useEffect(() => {
     async function getResponse() {
-        const response = await api.get("/conta/por_usuario/{idUsuario}", )
+      const response = await api.get("/conta/por_usuario/{idUsuario}");
     }
-  })
+  }, []);
 
   const handleLogin = async () => {
     try {
-      const userResponse = await fazerLogin(nome, senha); // Execução da api que vai preencher no useState user as informações de nome e renda do usuário. 
+      const userResponse = await fazerLogin(nome, senha);
       user?.setUser(userResponse);
-
-      // fiz um rebuliço aqui pra pegar o nome do nome, mas n sei se é a melhor forma
-      Alert.alert('Login realizado!', `Bem-vindo(a), ${nome}`);
-      navigation.navigate('Menu'); // Navega para a tela de Menu
+      Alert.alert("Login realizado!", `Bem-vindo(a), ${nome}`);
+      navigation.navigate("Menu");
     } catch (erro: any) {
-      Alert.alert('Erro no login', erro.message);
+      Alert.alert("Erro no login", erro.message);
     }
+  };
+
+  const handleForgotPassword = () => {
+    navigation.navigate("RecuperarSenha");
   };
 
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <Image
-        source={require("../assets/logo.png")} // Imagem da logo
+        source={require("../assets/logo.png")}
         style={styles.logoImage}
       />
 
-      {/* Título */}
       <Text style={styles.loginTitle}>Login</Text>
-      <Text style={styles.subTitle}>Bem vindo(a) de volta! </Text>
+      <Text style={styles.subTitle}>Bem vindo(a) de volta!</Text>
 
-      {/* Campos de entrada */}
       <TextInput
         placeholder="Usuário"
         value={nome}
@@ -61,6 +56,7 @@ export default function Login() {
         style={styles.input}
         placeholderTextColor="#999"
       />
+
       <TextInput
         placeholder="Senha"
         value={senha}
@@ -70,15 +66,16 @@ export default function Login() {
         placeholderTextColor="#999"
       />
 
-      {/* Botão */}
-      {/* // essa bobonica desse botao que eu nao lembrava dele eu tava fazendo TUDO errado pq tava chamando a funcao errada nesse carai */}
-      <TouchableOpacity
-        style={styles.button} onPress={handleLogin}
-      >
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Entrar</Text>
       </TouchableOpacity>
+
+      {/* link de esqueci minha senha */}
+      <TouchableOpacity onPress={handleForgotPassword}>
+        <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
+      </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -130,4 +127,11 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
-})
+  forgotPasswordText: {
+    marginTop: 15,
+    color: "#3B55A1",
+    fontWeight: "bold",
+    fontSize: 14,
+    textDecorationLine: "underline",
+  },
+});

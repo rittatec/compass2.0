@@ -18,6 +18,7 @@ import Investido from "../screens/Investido";
 import Receber from "../screens/Receber";
 import Saude from "../screens/Saude";
 import AlterarRenda from "../screens/AlterarRenda";
+import RecuperarSenha from "../screens/RecuperarSenha";
 
 
 // Importação das telas com tab
@@ -87,6 +88,7 @@ export default function AppRoutes() {
       <Stack.Screen name="Inicio" component={Inicio} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Cadastro" component={Cadastro} />
+      <Stack.Screen name="RecuperarSenha" component={RecuperarSenha} />
 
       {/* Colocamos o TabRoutes como rota do Stack */}
       <Stack.Screen 
