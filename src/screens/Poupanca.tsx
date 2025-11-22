@@ -1,8 +1,10 @@
 import { useRenda } from "../context/RendaContext";
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { salvarPoupanca } from '../services/poupancaService';
+import { salvarDebito } from "../services/categoriaService";
+import { UserContext } from "../context/userContext";
 
 type RootStackParamList = {
   Menu: undefined;
@@ -13,6 +15,10 @@ export default function Poupanca() {
   const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const category = "Poupança";
+
+  const contexto = useContext(UserContext);
+
   const handleSave = async () => {
     const valor = parseFloat(amount);
     if (isNaN(valor) || valor <= 0) {
@@ -21,8 +27,8 @@ export default function Poupanca() {
     }
 
   try {
-      await salvarPoupanca({ amount: valor });
-      debitarRenda(valor); // debita da renda global 
+      await salvarDebito({ amount: valor, category }, contexto);
+      // debitarRenda(valor); // debita da renda global 
       Alert.alert("Sucesso", `Valor para guardar na Poupança salvo: R$ ${valor.toFixed(2)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
@@ -37,7 +43,7 @@ export default function Poupanca() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ {rendaMensal.toFixed(2)}</Text>
+          <Text style={styles.income}>R$ {contexto?.user.renda.toFixed(2)}</Text>
         </View>
       </View>
 

@@ -10,7 +10,7 @@ export async function cadastrarUsuario(usuario: {
   email: string
 }) {
   try {
-    api.post("cadastrar_usuario", usuario);
+    api.post("/cadastrar_usuario", usuario);
   } catch(error) {
     console.error(error);
   }
