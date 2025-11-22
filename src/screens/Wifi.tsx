@@ -1,8 +1,13 @@
 import { useRenda } from "../context/RendaContext";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { salvarWifi } from "../services/wifiService";
+
+import { UserContext } from "../context/userContext";
+import { useContext } from "react";
+
+import { salvarDebito } from "../services/categoriaService";
 
 type RootStackParamList = {
   Menu: undefined;
@@ -10,8 +15,19 @@ type RootStackParamList = {
 
 export default function Wifi() {
   const [amount, setAmount] = useState("");
-  const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
+  // const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
+  const [ rendaMensal, setRendaMensal ] = useState<number | undefined>(0);
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const category = "Wi-fi";
+
+  const contexto = useContext(UserContext);
+
+  // Pegar o valor de renda do Contexto do usuário e passar para a variável 'rendaMensal'
+  useEffect(() => {
+    setRendaMensal(contexto?.user.renda)
+  })
 
   const handleSave = async () => {
     const valor = parseFloat(amount);
@@ -21,8 +37,8 @@ export default function Wifi() {
     }
 
   try {
-      await salvarWifi({ amount: valor });
-      debitarRenda(valor); // debita da renda global 
+      await salvarDebito({ amount: valor, category }, contexto);
+      /// debitarRenda(valor); // debita da renda global 
       Alert.alert("Sucesso", `Valor do pagamento do Wifi salvo: R$ ${valor.toFixed(2)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
@@ -37,7 +53,7 @@ export default function Wifi() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ {rendaMensal.toFixed(2)}</Text>
+          <Text style={styles.income}>R$ {contexto?.user.renda?.toFixed(2)}</Text>
         </View>
       </View>
 

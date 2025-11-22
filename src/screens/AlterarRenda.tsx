@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet,} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useRenda } from "../context/RendaContext";
+import { alterarRenda } from "../services/alterarRenda";
+import { UserContext } from "../context/userContext";
 
 export default function AlterarRenda() {
   const { rendaMensal, setRendaMensal } = useRenda();
   const [novoValor, setNovoValor] = useState(formatCurrency(rendaMensal));
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<any>();
+
+  const context = useContext(UserContext);
 
   // Função de formatação em R$
   function formatCurrency(value: number | string) {
@@ -47,12 +51,14 @@ export default function AlterarRenda() {
       // const response = await axios.put("http://SEU_BACKEND/api/renda", { renda: valorNumerico });
 
       // Mock de backend (simulação de resposta)
-      const response = await new Promise((resolve) =>
+      /* const response = await new Promise((resolve) =>
         setTimeout(() => resolve({ data: { renda: valorNumerico } }), 1200)
-      );
+      ); */
 
       // @ts-ignore (o chat que falou que colocar isso seria relevante mas n entendi mt bem)
-      setRendaMensal(response.data.renda);
+      // setRendaMensal(response.data.renda);
+
+      alterarRenda(valorNumerico, context)
 
       Alert.alert("Sucesso", "Renda mensal alterada!");
       navigation.goBack();
