@@ -2,28 +2,47 @@ import { useRenda } from "../context/RendaContext";
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarFeira } from '../services/feiraService'; // serviço simulado
+import { salvarFeira } from '../services/feiraService'; // serviço
+import { UserContext } from "../context/userContext";
+import { useContext } from "react";
 
 type RootStackParamList = {
   Menu: undefined;
 };
 
 export default function Feira() {
-  const [amount, setAmount] = useState("");
-  const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
+  const [amount, setAmount] = useState("");     // valor formatado
+  const [rawValue, setRawValue] = useState(0);  // valor numérico real
+  const { rendaMensal, debitarRenda } = useRenda();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const contexto = useContext(UserContext);
+
+  function formatCurrency(value: number) {
+    return value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+
+  function handleChange(text: string) {
+    const onlyNums = text.replace(/\D/g, "");
+    const numericValue = Number(onlyNums) / 100;
+
+    setRawValue(numericValue);
+    setAmount(formatCurrency(numericValue));
+  }
 
   const handleSave = async () => {
-    const valor = parseFloat(amount);
-    if (isNaN(valor) || valor <= 0) {
+    if (rawValue <= 0) {
       Alert.alert("Erro", "Digite um valor válido!");
       return;
     }
 
-  try {
-      await salvarFeira({ amount: valor });
-      debitarRenda(valor); // debita da renda global 
-      Alert.alert("Sucesso", `Valor da Feira salvo: R$ ${valor.toFixed(2)}`);
+    try {
+      await salvarFeira({ amount: rawValue });
+      debitarRenda(rawValue);
+
+      Alert.alert("Sucesso", `Valor da Feira salvo: ${formatCurrency(rawValue)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
       Alert.alert("Erro", error.message);
@@ -37,20 +56,24 @@ export default function Feira() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ {rendaMensal.toFixed(2)}</Text>
+          <Text style={styles.income}>
+            {formatCurrency(contexto?.user.renda ?? 0)}
+          </Text>
         </View>
       </View>
 
       <View style={styles.paymentBox}>
         <Text style={styles.paymentTitle}>Feira</Text>
         <Text style={styles.paymentLabel}>Insira o valor:</Text>
+
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           placeholder="R$ 0,00"
           value={amount}
-          onChangeText={setAmount}
+          onChangeText={handleChange}
         />
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Salvar</Text>
         </TouchableOpacity>

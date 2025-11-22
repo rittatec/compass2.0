@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet,} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useRenda } from "../context/RendaContext";
 import { alterarRenda } from "../services/alterarRenda";
@@ -34,10 +34,7 @@ export default function AlterarRenda() {
   };
 
   const handleSalvar = async () => {
-    // Converte de volta para número puro
-    const valorNumerico = Number(
-      novoValor.replace(/\D/g, "")
-    ) / 100;
+    const valorNumerico = Number(novoValor.replace(/\D/g, "")) / 100;
 
     if (isNaN(valorNumerico) || valorNumerico <= 0) {
       Alert.alert("Erro", "Digite um valor válido!");
@@ -47,24 +44,23 @@ export default function AlterarRenda() {
     setLoading(true);
 
     try {
-      // Aqui eh pra ficar o backend real
-      // const response = await axios.put("http://SEU_BACKEND/api/renda", { renda: valorNumerico });
+      // 1. Atualiza no banco
+      const ok = await alterarRenda(valorNumerico, context?.user);
 
-      // Mock de backend (simulação de resposta)
-      /* const response = await new Promise((resolve) =>
-        setTimeout(() => resolve({ data: { renda: valorNumerico } }), 1200)
-      ); */
+      if (!ok) return;
 
-      // @ts-ignore (o chat que falou que colocar isso seria relevante mas n entendi mt bem)
-      // setRendaMensal(response.data.renda);
-
-      alterarRenda(valorNumerico, context)
+      // 2. Atualiza no contexto
+      context?.setUser({
+        ...context.user,
+        renda: valorNumerico,
+      });
 
       Alert.alert("Sucesso", "Renda mensal alterada!");
       navigation.goBack();
+
     } catch (error) {
       console.error("Erro ao salvar renda:", error);
-      Alert.alert("Erro", "Não foi possível salvar.");
+      Alert.alert("Erro", "Erro ao salvar renda.");
     } finally {
       setLoading(false);
     }

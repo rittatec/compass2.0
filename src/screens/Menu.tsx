@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from "react-native";
 import type { ColorValue } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRenda } from "../context/RendaContext";
@@ -18,13 +18,21 @@ export default function Menu() {
   // Importação do contexto com o usuário recebido da api.
   const user = useContext(UserContext);
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    setContaNome(user?.user.nome);
-    setContaRenda(user?.user.renda)
-  }, [])
+    if (isFocused) {
+      setContaNome(user?.user.nome);
+      setContaRenda(user?.user.renda);
+    }
+  }, [isFocused, user]);
+  // useEffect(() => {
+  //   setContaNome(user?.user.nome);
+  //   setContaRenda(user?.user.renda)
+  // }, [])
 
   // Arrays para mapear os itens
- 
+
   const pagamentos = [
     { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"] as readonly [ColorValue, ColorValue], screen: "Agua" },
     { name: "Energia", icon: <MaterialIcons name="bolt" size={35} color="#fff" />, colors: ["#4CAF50", "#2E7D32"] as readonly [ColorValue, ColorValue], screen: "Energia" },
@@ -41,7 +49,7 @@ export default function Menu() {
   ];
 
   return (
- <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.welcome}>Bem vindo(a), {contaNome}.</Text>
 
       <View style={[styles.card, styles.shadow]}>
@@ -49,7 +57,7 @@ export default function Menu() {
           <Text style={styles.cardTitle}>Renda Mensal</Text>
           <Text style={styles.cardValue}>R$ {contaRenda?.toFixed(2)}</Text>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.buttonAlterar}
           onPress={() => navigation.navigate("AlterarRenda")} // futuramente tela de alterar
         >

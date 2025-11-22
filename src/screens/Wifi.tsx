@@ -1,45 +1,51 @@
-import { useRenda } from "../context/RendaContext";
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarWifi } from "../services/wifiService";
+import { salvarDebito } from "../services/categoriaService";
 
 import { UserContext } from "../context/userContext";
-import { useContext } from "react";
-
-import { salvarDebito } from "../services/categoriaService";
 
 type RootStackParamList = {
   Menu: undefined;
 };
 
 export default function Wifi() {
-  const [amount, setAmount] = useState("");
-  // const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
-  const [ rendaMensal, setRendaMensal ] = useState<number | undefined>(0);
+  const [amount, setAmount] = useState(""); // valor formatado p/ exibição
+  const [rawValue, setRawValue] = useState(0); // valor numérico real
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const contexto = useContext(UserContext);
 
   const category = "Wi-fi";
 
-  const contexto = useContext(UserContext);
+  // ---------- FUNÇÃO DE FORMATAÇÃO ----------
+  function formatCurrency(value: number) {
+    return value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
 
-  // Pegar o valor de renda do Contexto do usuário e passar para a variável 'rendaMensal'
-  useEffect(() => {
-    setRendaMensal(contexto?.user.renda)
-  })
+  // ---------- MÁSCARA ENQUANTO DIGITA ----------
+  function handleChange(text: string) {
+    const onlyNums = text.replace(/\D/g, ""); // remove tudo que não é número
+    const numericValue = Number(onlyNums) / 100; // transforma para centavos
 
+    setRawValue(numericValue); // guarda valor numérico real
+    setAmount(formatCurrency(numericValue)); // mostra formatado pro usuário
+  }
+
+  // ----------- SALVAR ----------------
   const handleSave = async () => {
-    const valor = parseFloat(amount);
-    if (isNaN(valor) || valor <= 0) {
+    if (rawValue <= 0) {
       Alert.alert("Erro", "Digite um valor válido!");
       return;
     }
 
-  try {
-      await salvarDebito({ amount: valor, category }, contexto);
-      /// debitarRenda(valor); // debita da renda global 
-      Alert.alert("Sucesso", `Valor do pagamento do Wifi salvo: R$ ${valor.toFixed(2)}`);
+    try {
+      await salvarDebito({ amount: rawValue, category }, contexto);
+
+      Alert.alert("Sucesso", `Valor do pagamento do Wifi salvo: ${formatCurrency(rawValue)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
       Alert.alert("Erro", error.message);
@@ -53,20 +59,24 @@ export default function Wifi() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ {contexto?.user.renda?.toFixed(2)}</Text>
+          <Text style={styles.income}>
+            {formatCurrency(contexto?.user.renda ?? 0)}
+          </Text>
         </View>
       </View>
 
       <View style={styles.paymentBox}>
         <Text style={styles.paymentTitle}>Wifi</Text>
         <Text style={styles.paymentLabel}>Insira o valor:</Text>
+
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           placeholder="R$ 0,00"
           value={amount}
-          onChangeText={setAmount}
+          onChangeText={handleChange}
         />
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Salvar</Text>
         </TouchableOpacity>

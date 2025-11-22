@@ -2,7 +2,6 @@ import { useRenda } from "../context/RendaContext";
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarReceber } from '../services/receberService'; // serviço simulado
 import { salvarDebito } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
@@ -12,24 +11,42 @@ type RootStackParamList = {
 
 export default function Receber() {
   const [amount, setAmount] = useState("");
-  const { rendaMensal, somarRenda } = useRenda(); // pega renda global
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const contexto = useContext(UserContext);
 
   const category = "Receber";
 
-  const contexto = useContext(UserContext);
+  // ---- Formatação da moeda ----
+  function formatInputCurrency(text: string) {
+    const onlyNums = text.replace(/\D/g, "");
+
+    if (!onlyNums) {
+      setAmount("");
+      return;
+    }
+
+    const value = (parseInt(onlyNums) / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+    setAmount(value);
+  }
 
   const handleSave = async () => {
-    const valor = parseFloat(amount);
-    if (isNaN(valor) || valor <= 0) {
+    const numericValue = parseFloat(
+      amount.replace("R$", "").replace(/\./g, "").replace(",", ".")
+    );
+
+    if (isNaN(numericValue) || numericValue <= 0) {
       Alert.alert("Erro", "Digite um valor válido!");
       return;
     }
 
-  try {
-      await salvarDebito({ amount: valor, category }, contexto);
-      // somarRenda(valor); // soma da renda global 
-      Alert.alert("Sucesso", `Valor a receber salvo: R$ ${valor.toFixed(2)}`);
+    try {
+      await salvarDebito({ amount: numericValue, category }, contexto);
+
+      Alert.alert("Sucesso", `Valor a receber salvo: R$ ${numericValue.toFixed(2)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
       Alert.alert("Erro", error.message);
@@ -50,13 +67,15 @@ export default function Receber() {
       <View style={styles.paymentBox}>
         <Text style={styles.paymentTitle}>Receber</Text>
         <Text style={styles.paymentLabel}>Insira o valor:</Text>
+
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           placeholder="R$ 0,00"
           value={amount}
-          onChangeText={setAmount}
+          onChangeText={formatInputCurrency}
         />
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Salvar</Text>
         </TouchableOpacity>

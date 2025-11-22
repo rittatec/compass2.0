@@ -2,7 +2,6 @@ import { useRenda } from "../context/RendaContext";
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarExtra } from '../services/extraService'; // serviço simulado
 import { salvarDebito } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
@@ -11,25 +10,39 @@ type RootStackParamList = {
 };
 
 export default function Extra() {
-  const [amount, setAmount] = useState("");
-  const { rendaMensal, somarRenda } = useRenda(); // pega renda global
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [amount, setAmount] = useState("");         // valor exibido
+  const [rawValue, setRawValue] = useState(0);      // valor real numérico
 
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const contexto = useContext(UserContext);
   const category = "Extra";
 
-  const contexto = useContext(UserContext);
+  // ---------- MESMA FUNÇÃO DO WIFI ----------
+  function formatCurrency(value: number) {
+    return value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+  }
+
+  function handleChange(text: string) {
+    const onlyNums = text.replace(/\D/g, "");
+    const numericValue = Number(onlyNums) / 100;
+
+    setRawValue(numericValue);
+    setAmount(formatCurrency(numericValue));
+  }
 
   const handleSave = async () => {
-    const valor = parseFloat(amount);
-    if (isNaN(valor) || valor <= 0) {
+    if (rawValue <= 0) {
       Alert.alert("Erro", "Digite um valor válido!");
       return;
     }
 
-  try {
-      await salvarDebito({ amount: valor, category }, contexto);
-      // somarRenda(valor); // soma da renda global 
-      Alert.alert("Sucesso", `Valor de renda extra salvo: R$ ${valor.toFixed(2)}`);
+    try {
+      await salvarDebito({ amount: rawValue, category }, contexto);
+
+      Alert.alert("Sucesso", `Valor de renda extra salvo: ${formatCurrency(rawValue)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
       Alert.alert("Erro", error.message);
@@ -43,20 +56,24 @@ export default function Extra() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ {contexto?.user.renda.toFixed(2)}</Text>
+          <Text style={styles.income}>
+            {formatCurrency(contexto?.user.renda ?? 0)}
+          </Text>
         </View>
       </View>
 
       <View style={styles.paymentBox}>
         <Text style={styles.paymentTitle}>Extra</Text>
         <Text style={styles.paymentLabel}>Insira o valor:</Text>
+
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           placeholder="R$ 0,00"
           value={amount}
-          onChangeText={setAmount}
+          onChangeText={handleChange}
         />
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Salvar</Text>
         </TouchableOpacity>

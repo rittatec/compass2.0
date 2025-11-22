@@ -2,7 +2,7 @@ import { useRenda } from "../context/RendaContext";
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarEnergia } from '../services/energiaService'; // serviço simulado
+import { salvarEnergia } from '../services/energiaService';
 import { salvarDebito } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
@@ -12,24 +12,42 @@ type RootStackParamList = {
 
 export default function Energia() {
   const [amount, setAmount] = useState("");
-  const { rendaMensal, debitarRenda } = useRenda(); // pega renda global
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const contexto = useContext(UserContext);
 
   const category = "Energia";
 
-  const contexto = useContext(UserContext);
+  function formatInputCurrency(text: string) {
+    const onlyNums = text.replace(/\D/g, ""); // limpa tudo que não for número
+
+    if (!onlyNums) {
+      setAmount("");
+      return;
+    }
+
+    const value = (parseInt(onlyNums) / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+    setAmount(value);
+  }
 
   const handleSave = async () => {
-    const valor = parseFloat(amount);
-    if (isNaN(valor) || valor <= 0) {
+    // Converte "R$ 120,50" → 120.50
+    const numericValue = parseFloat(
+      amount.replace("R$", "").replace(/\./g, "").replace(",", ".")
+    );
+
+    if (isNaN(numericValue) || numericValue <= 0) {
       Alert.alert("Erro", "Digite um valor válido!");
       return;
     }
 
-  try {
-      await salvarDebito({ amount: valor, category }, contexto);
-      // debitarRenda(valor); // debita da renda global 
-      Alert.alert("Sucesso", `Valor de energia salvo: R$ ${valor.toFixed(2)}`);
+    try {
+      await salvarDebito({ amount: numericValue, category }, contexto);
+
+      Alert.alert("Sucesso", `Valor de energia salvo: R$ ${numericValue.toFixed(2)}`);
       navigation.navigate("Menu");
     } catch (error: any) {
       Alert.alert("Erro", error.message);
@@ -43,20 +61,24 @@ export default function Energia() {
       <View style={styles.card}>
         <Text style={styles.subtitle}>Renda Mensal</Text>
         <View style={styles.incomeBox}>
-          <Text style={styles.income}>R$ {contexto?.user.renda.toFixed(2)}</Text>
+          <Text style={styles.income}>
+            R$ {contexto?.user.renda.toFixed(2)}
+          </Text>
         </View>
       </View>
 
       <View style={styles.paymentBox}>
         <Text style={styles.paymentTitle}>Energia</Text>
         <Text style={styles.paymentLabel}>Insira o valor:</Text>
+
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           placeholder="R$ 0,00"
           value={amount}
-          onChangeText={setAmount}
+          onChangeText={formatInputCurrency}
         />
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveText}>Salvar</Text>
         </TouchableOpacity>
