@@ -1,11 +1,11 @@
 import React, { useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from "react-native"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons";
 import { NavigationProp } from "@react-navigation/native";
 
 type RootStackParamList = {
   Login: undefined;
-  };
+};
 
 // Importando função para cadastrar usuários
 import { cadastrarUsuario } from "../services/cadastroService"
@@ -22,7 +22,7 @@ export default function Cadastrar({ navigation }: { navigation: NavigationProp<R
     try {
       await cadastrarUsuario({ 
         senha,
-        nome: username, // nome de usuário
+        nome: username,
         email,
       });
       Alert.alert("Cadastro realizado!", "Você pode fazer login agora.");
@@ -33,85 +33,94 @@ export default function Cadastrar({ navigation }: { navigation: NavigationProp<R
   };
 
   return (
-    <View style={styles.container}>
-      {/* Logo */}
-      <Image
-        source={require("../assets/logo.png")} // Imagem da logo
-        style={styles.logoImage}
-      />
-
-      {/* Título */}
-      <Text style={styles.title}>Cadastre-se</Text>
-      <Text style={styles.subTitle}>
-        Venha fazer seu próprio controle financeiro
-      </Text>
-
-      {/* Formulário */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="User"
-          placeholderTextColor="#999"
-          style={styles.input}
-          onChangeText={setUsername}
-        />
-        <TextInput
-          placeholder="Email"
-          placeholderTextColor="#999"
-          style={styles.input}
-          onChangeText={setEmail}
-          keyboardType="email-address"
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Logo */}
+        <Image
+          source={require("../assets/logo.png")}
+          style={styles.logoImage}
         />
 
-        <View style={styles.passwordContainer}>
-          <TextInput
-            placeholder="Senha"
-            placeholderTextColor="#999"
-            secureTextEntry={!senhaVisivel}
-            style={styles.inputPassword}
-            onChangeText={setSenha}
-          />
-          <Feather
-            name={senhaVisivel ? "eye" : "eye-off"}
-            size={20}
-            color="#999"
-            onPress={() => setSenhaVisivel(!senhaVisivel)}
-          />
-        </View>
+        {/* Título */}
+        <Text style={styles.title}>Cadastre-se</Text>
+        <Text style={styles.subTitle}>
+          Venha fazer seu próprio controle financeiro
+        </Text>
 
-        <View style={styles.passwordContainer}>
+        {/* Formulário */}
+        <View style={styles.inputContainer}>
           <TextInput
-            placeholder="Confirmar Senha"
+            placeholder="User"
             placeholderTextColor="#999"
-            secureTextEntry={!confirmarSenhaVisivel}
-            style={styles.inputPassword}
-            onChangeText={setConfirmarSenha}
+            style={styles.input}
+            onChangeText={setUsername}
           />
-          <Feather
-            name={confirmarSenhaVisivel ? "eye" : "eye-off"}
-            size={20}
-            color="#999"
-            onPress={() => setConfirmarSenhaVisivel(!confirmarSenhaVisivel)}
+          <TextInput
+            placeholder="Email"
+            placeholderTextColor="#999"
+            style={styles.input}
+            onChangeText={setEmail}
+            keyboardType="email-address"
           />
-        </View>
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleCadastro}
-        >
-          <Text style={styles.buttonText}>Registre-se</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Senha"
+              placeholderTextColor="#999"
+              secureTextEntry={!senhaVisivel}
+              style={styles.inputPassword}
+              onChangeText={setSenha}
+            />
+            <Feather
+              name={senhaVisivel ? "eye" : "eye-off"}
+              size={20}
+              color="#999"
+              onPress={() => setSenhaVisivel(!senhaVisivel)}
+            />
+          </View>
+
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Confirmar Senha"
+              placeholderTextColor="#999"
+              secureTextEntry={!confirmarSenhaVisivel}
+              style={styles.inputPassword}
+              onChangeText={setConfirmarSenha}
+            />
+            <Feather
+              name={confirmarSenhaVisivel ? "eye" : "eye-off"}
+              size={20}
+              color="#999"
+              onPress={() => setConfirmarSenhaVisivel(!confirmarSenhaVisivel)}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleCadastro}
+          >
+            <Text style={styles.buttonText}>Registre-se</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: "#f9f9f9",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
+    paddingVertical: 20,
   },
   logoImage: {
     width: 100,

@@ -1,5 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  Dimensions,
+} from "react-native";
 import type { ColorValue } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
@@ -9,15 +17,9 @@ import { UserContext } from "../context/userContext";
 
 export default function Menu() {
   const navigation = useNavigation<any>();
-  // const { rendaMensal } = useRenda(); // pega do contexto do usuário.
-
-  // variáveis com os valores de nome e renda da conta.
   const [contaNome, setContaNome] = useState<string | undefined>("Visitante")
   const [contaRenda, setContaRenda] = useState<number | undefined>(0)
-
-  // Importação do contexto com o usuário recebido da api.
   const user = useContext(UserContext);
-
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -26,12 +28,6 @@ export default function Menu() {
       setContaRenda(user?.user.renda);
     }
   }, [isFocused, user]);
-  // useEffect(() => {
-  //   setContaNome(user?.user.nome);
-  //   setContaRenda(user?.user.renda)
-  // }, [])
-
-  // Arrays para mapear os itens
 
   const pagamentos = [
     { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"] as readonly [ColorValue, ColorValue], screen: "Agua" },
@@ -48,63 +44,81 @@ export default function Menu() {
     { name: "Saúde", icon: <FontAwesome name="heartbeat" size={28} color="#fff" />, colors: ["#E91E63", "#880E4F"] as readonly [ColorValue, ColorValue], screen: "Saude" },
   ];
 
+  const screenHeight = Dimensions.get("window").height;
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.welcome}>Bem vindo(a), {contaNome}.</Text>
+    <ScrollView
+      contentContainerStyle={[styles.scrollContainer, { minHeight: screenHeight }]}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.container}>
+        <Text style={styles.welcome}>Bem vindo(a), {contaNome}.</Text>
 
-      <View style={[styles.card, styles.shadow]}>
-        <View>
-          <Text style={styles.cardTitle}>Renda Mensal</Text>
-          <Text style={styles.cardValue}>R$ {contaRenda?.toFixed(2)}</Text>
+        <View style={[styles.card, styles.shadow]}>
+          <View>
+            <Text style={styles.cardTitle}>Renda Mensal</Text>
+            <Text style={styles.cardValue}>R$ {contaRenda?.toFixed(2)}</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.buttonAlterar}
+            onPress={() => navigation.navigate("AlterarRenda")}
+          >
+            <Text style={styles.buttonText}>Alterar</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.buttonAlterar}
-          onPress={() => navigation.navigate("AlterarRenda")} // futuramente tela de alterar
-        >
-          <Text style={styles.buttonText}>Alterar</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.sectionTitle}>Pagamentos mensais</Text>
-      <View style={styles.grid}>
-        {pagamentos.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.item} onPress={() => navigation.navigate(item.screen)}>
-            <LinearGradient colors={item.colors} style={[styles.gradient, styles.shadow]}>
-              {item.icon}
-            </LinearGradient>
-            <Text style={styles.itemText}>{item.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
 
-      <Text style={styles.sectionTitle}>Categorias</Text>
-      <View style={styles.grid}>
-        {categorias.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.item} onPress={() => navigation.navigate(item.screen)}>
-            <LinearGradient colors={item.colors} style={[styles.gradient, styles.shadow]}>
-              {item.icon}
-            </LinearGradient>
-            <Text style={styles.itemText}>{item.name}</Text>
-          </TouchableOpacity>
-        ))}
+        <Text style={styles.sectionTitle}>Pagamentos mensais</Text>
+        <View style={styles.grid}>
+          {pagamentos.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.item}
+              onPress={() => navigation.navigate(item.screen)}
+            >
+              <LinearGradient colors={item.colors} style={[styles.gradient, styles.shadow]}>
+                {item.icon}
+              </LinearGradient>
+              <Text style={styles.itemText}>{item.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Text style={styles.sectionTitle}>Categorias</Text>
+        <View style={styles.grid}>
+          {categorias.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.item}
+              onPress={() => navigation.navigate(item.screen)}
+            >
+              <LinearGradient colors={item.colors} style={[styles.gradient, styles.shadow]}>
+                {item.icon}
+              </LinearGradient>
+              <Text style={styles.itemText}>{item.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: "#f5f5f5",
+  },
   container: {
     paddingTop: Platform.OS === "android" ? 50 : 60,
     paddingHorizontal: 20,
     paddingBottom: 40,
-    backgroundColor: "#fff",
   },
-
   welcome: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
+    textAlign: "center",
   },
-
   card: {
     backgroundColor: "#3f51b5",
     borderRadius: 10,
@@ -114,34 +128,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 25,
   },
-
   cardTitle: { color: "#fff", fontSize: 16 },
   cardValue: { color: "#fff", fontSize: 22, fontWeight: "bold" },
-
   buttonAlterar: {
     backgroundColor: "#fff",
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 5,
   },
-
   buttonText: { color: "#000", fontWeight: "bold" },
-
   sectionTitle: { fontSize: 18, fontWeight: "bold", marginVertical: 10 },
-
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
     marginBottom: 25,
   },
-
   item: {
     width: "22%",
     alignItems: "center",
     marginBottom: 20,
   },
-
   gradient: {
     width: 70,
     height: 70,
@@ -149,7 +156,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   itemText: {
     marginTop: 5,
     fontWeight: "bold",
@@ -157,7 +163,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#333",
   },
-
   shadow: {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },

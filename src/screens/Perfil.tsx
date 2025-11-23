@@ -7,6 +7,9 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,7 +31,6 @@ export default function Perfil() {
     telefone: "",
   });
 
-  // Carregar dados do AsyncStorage
   useEffect(() => {
     const carregarPerfil = async () => {
       try {
@@ -41,7 +43,6 @@ export default function Perfil() {
     carregarPerfil();
   }, []);
 
-  // Salvar dados no AsyncStorage
   const salvarPerfil = async () => {
     try {
       await AsyncStorage.setItem("perfil", JSON.stringify(perfil));
@@ -51,7 +52,6 @@ export default function Perfil() {
     }
   };
 
-  // Selecionar imagem do dispositivo
   const selecionarImagem = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -64,65 +64,76 @@ export default function Perfil() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Foto do perfil */}
-      <TouchableOpacity onPress={selecionarImagem}>
-        <Image
-          source={
-            perfil.foto
-              ? { uri: perfil.foto }
-              : { uri: "https://i.pravatar.cc/150?img=12" }
-          }
-          style={styles.avatar}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Espaço superior para deixar mais confortável */}
+        <View style={{ height:150 }} />
+
+        <TouchableOpacity onPress={selecionarImagem} style={{ alignItems: "center" }}>
+          <Image
+            source={
+              perfil.foto
+                ? { uri: perfil.foto }
+                : { uri: "https://i.pravatar.cc/150?img=12" }
+            }
+            style={styles.avatar}
+          />
+          <Text style={styles.alterarFoto}>Alterar Foto</Text>
+        </TouchableOpacity>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Nome"
+          value={perfil.nome}
+          onChangeText={(text) => setPerfil({ ...perfil, nome: text })}
         />
-        <Text style={styles.alterarFoto}>Alterar Foto</Text>
-      </TouchableOpacity>
 
-      {/* Campos de edição */}
-      <TextInput
-        style={styles.input}
-        placeholder="Nome"
-        value={perfil.nome}
-        onChangeText={(text) => setPerfil({ ...perfil, nome: text })}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Data de Nascimento (AAAA-MM-DD)"
+          value={perfil.nascimento}
+          onChangeText={(text) => setPerfil({ ...perfil, nascimento: text })}
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Data de Nascimento (AAAA-MM-DD)"
-        value={perfil.nascimento}
-        onChangeText={(text) => setPerfil({ ...perfil, nascimento: text })}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={perfil.email}
+          keyboardType="email-address"
+          onChangeText={(text) => setPerfil({ ...perfil, email: text })}
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={perfil.email}
-        keyboardType="email-address"
-        onChangeText={(text) => setPerfil({ ...perfil, email: text })}
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Telefone"
+          value={perfil.telefone}
+          keyboardType="phone-pad"
+          onChangeText={(text) => setPerfil({ ...perfil, telefone: text })}
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Telefone"
-        value={perfil.telefone}
-        keyboardType="phone-pad"
-        onChangeText={(text) => setPerfil({ ...perfil, telefone: text })}
-      />
+        <TouchableOpacity style={styles.button} onPress={salvarPerfil}>
+          <Text style={styles.buttonText}>Salvar Perfil</Text>
+        </TouchableOpacity>
 
-      {/* Botão Salvar */}
-      <TouchableOpacity style={styles.button} onPress={salvarPerfil}>
-        <Text style={styles.buttonText}>Salvar Perfil</Text>
-      </TouchableOpacity>
-    </View>
+        {/* Espaço inferior para não colar no final */}
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 20,
   },
   avatar: {
     width: 120,

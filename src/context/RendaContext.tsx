@@ -10,7 +10,7 @@ type RendaContextType = {
 const RendaContext = createContext<RendaContextType | undefined>(undefined);
 
 export const RendaProvider = ({ children }: { children: ReactNode }) => {
-  const [rendaMensal, setRendaMensal] = useState<number>(2500); // valor inicial simulado
+  const [rendaMensal, setRendaMensal] = useState<number>(0); // valor inicial simulado
 
   const debitarRenda = (valor: number) => {
     setRendaMensal((prev) => prev - valor);

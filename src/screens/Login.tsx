@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TextInput, Alert, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { View, Text, TextInput, Alert, TouchableOpacity, Image, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { fazerLogin } from "../services/loginServise";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { UserContext } from "../context/userContext";
@@ -11,7 +11,7 @@ export default function Login() {
 
   type RootStackParamList = {
     Menu: undefined;
-    RecuperarSenha: undefined; // caso queira criar uma tela futura
+    RecuperarSenha: undefined;
   };
 
   const user = useContext(UserContext);
@@ -39,52 +39,60 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/logo.png")}
-        style={styles.logoImage}
-      />
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Image
+          source={require("../assets/logo.png")}
+          style={styles.logoImage}
+        />
 
-      <Text style={styles.loginTitle}>Login</Text>
-      <Text style={styles.subTitle}>Bem vindo(a) de volta!</Text>
+        <Text style={styles.loginTitle}>Login</Text>
+        <Text style={styles.subTitle}>Bem vindo(a) de volta!</Text>
 
-      <TextInput
-        placeholder="Usuário"
-        value={nome}
-        onChangeText={setnome}
-        autoCapitalize="none"
-        style={styles.input}
-        placeholderTextColor="#999"
-      />
+        <TextInput
+          placeholder="Usuário"
+          value={nome}
+          onChangeText={setnome}
+          autoCapitalize="none"
+          style={styles.input}
+          placeholderTextColor="#999"
+        />
 
-      <TextInput
-        placeholder="Senha"
-        value={senha}
-        onChangeText={setSenha}
-        style={styles.input}
-        secureTextEntry
-        placeholderTextColor="#999"
-      />
+        <TextInput
+          placeholder="Senha"
+          value={senha}
+          onChangeText={setSenha}
+          style={styles.input}
+          secureTextEntry
+          placeholderTextColor="#999"
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Entrar</Text>
+        </TouchableOpacity>
 
-      {/* link de esqueci minha senha */}
-      <TouchableOpacity onPress={handleForgotPassword}>
-        <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={handleForgotPassword}>
+          <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: "#F9F9F9",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
+    paddingVertical: 20,
   },
   logoImage: {
     width: 100,

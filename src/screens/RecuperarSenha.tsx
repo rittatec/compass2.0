@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 
-// Define os tipos de navegação (as telas disponíveis no stack)
 type RootStackParamList = {
   Login: undefined;
   RecuperarSenha: undefined;
@@ -17,7 +19,6 @@ type RootStackParamList = {
 
 export default function RecuperarSenha() {
   const [email, setEmail] = useState<string>("");
-
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleRecuperar = async () => {
@@ -27,55 +28,65 @@ export default function RecuperarSenha() {
     }
 
     try {
-      // API de recuperação de senha, ex:
-      // await api.post("/recuperar-senha", { email });
-
       Alert.alert(
         "Verifique seu e-mail",
         "Enviamos um link de redefinição de senha para o e-mail informado."
       );
-      navigation.navigate("Login"); // retorna pra tela de login
+      navigation.navigate("Login");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível enviar o e-mail de recuperação.");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Recuperar Senha</Text>
-      <Text style={styles.subtitle}>
-        Digite o e-mail associado à sua conta para redefinir sua senha.
-      </Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.innerContainer}>
+          <Text style={styles.title}>Recuperar Senha</Text>
+          <Text style={styles.subtitle}>
+            Digite o e-mail associado à sua conta para redefinir sua senha.
+          </Text>
 
-      <TextInput
-        placeholder="E-mail"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        style={styles.input}
-        placeholderTextColor="#999"
-      />
+          <TextInput
+            placeholder="E-mail"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
 
-      <TouchableOpacity style={styles.button} onPress={handleRecuperar}>
-        <Text style={styles.buttonText}>Enviar Link</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleRecuperar}>
+            <Text style={styles.buttonText}>Enviar Link</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-        <Text style={styles.voltarTexto}>Voltar ao Login</Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+            <Text style={styles.voltarTexto}>Voltar ao Login</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
-// 💅 Estilos
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     backgroundColor: "#F9F9F9",
-    alignItems: "center",
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 20,
+    paddingVertical: 40, // mais espaçamento top/bottom
   },
   title: {
     fontSize: 26,

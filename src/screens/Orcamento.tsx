@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { useRenda } from "../context/RendaContext";
 
 // Serviços
@@ -83,7 +89,6 @@ export default function Orcamento() {
     );
   }
 
-  // Totais
   const totalEntradas = categorias
     .filter((c) => c.tipo === "receita")
     .reduce((acc, c) => acc + c.valor, 0);
@@ -99,30 +104,32 @@ export default function Orcamento() {
         <Text style={styles.headerText}>Histórico</Text>
       </View>
 
-      {/* Lista de histórico */}
-      <FlatList
-        data={categorias}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            <View>
-              <Text style={styles.catName}>{item.nome}</Text>
-              <Text style={styles.date}>{item.data}</Text>
+      {/* Histórico responsivo */}
+      <View style={styles.listContainer}>
+        <FlatList
+          data={categorias}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.row}>
+              <View>
+                <Text style={styles.catName}>{item.nome}</Text>
+                <Text style={styles.date}>{item.data}</Text>
+              </View>
+              <Text
+                style={[
+                  styles.catValue,
+                  { color: item.tipo === "despesa" ? "red" : "green" },
+                ]}
+              >
+                {item.tipo === "despesa" ? "-" : "+"} R$ {item.valor.toFixed(2)}
+              </Text>
             </View>
-            <Text
-              style={[
-                styles.catValue,
-                { color: item.tipo === "despesa" ? "red" : "green" },
-              ]}
-            >
-              {item.tipo === "despesa" ? "-" : "+"} R$ {item.valor.toFixed(2)}
-            </Text>
-          </View>
-        )}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+          )}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      </View>
 
-      {/* Rodapé fixo com totais */}
+      {/* Rodapé com totais */}
       <View style={styles.footer}>
         <Text style={[styles.total, { color: "green" }]}>
           Total de Entradas: R$ {totalEntradas.toFixed(2)}
@@ -142,9 +149,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#3A53A4",
     padding: 12,
     borderRadius: 8,
-    margin: 20,
+    marginHorizontal: 15,
+    marginTop: 40
   },
   headerText: { color: "#fff", fontSize: 22, fontWeight: "bold", textAlign: "center" },
+  listContainer: {
+    flex: 1,
+    paddingHorizontal: 0,
+  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -157,14 +169,10 @@ const styles = StyleSheet.create({
   catValue: { fontSize: 16, fontWeight: "bold" },
   date: { fontSize: 12, color: "#555" },
   footer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#f9f9f9",
     padding: 15,
     borderTopWidth: 1,
     borderTopColor: "#ddd",
+    backgroundColor: "#f9f9f9",
   },
   total: { fontSize: 18, fontWeight: "bold", textAlign: "center" },
 });

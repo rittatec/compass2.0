@@ -3,8 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TextInput,
+  ScrollView,
+  Dimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -55,29 +56,28 @@ export default function Notificacoes() {
   };
 
   const hoje = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD"
+  const screenHeight = Dimensions.get("window").height;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>📌 Notificações</Text>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={{ paddingBottom: 40 }}
+    >
+      <View style={[styles.container, { paddingTop: screenHeight * 0.05 }]}>
+        <Text style={styles.header}>Notificações</Text>
 
-      <FlatList
-        data={contas}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => {
+        {contas.map((item) => {
           const ehHoje = item.vencimento === hoje;
           return (
             <View
-              style={[
-                styles.notificacao,
-                ehHoje && styles.notificacaoHoje,
-              ]}
+              key={item.id}
+              style={[styles.notificacao, ehHoje && styles.notificacaoHoje]}
             >
               <Text style={[styles.nomeConta, ehHoje && styles.nomeContaHoje]}>
                 {ehHoje ? `⚠️ ${item.nome}` : item.nome}
               </Text>
 
               <View style={styles.row}>
-                {/* Campo para editar a data */}
                 <TextInput
                   style={styles.inputData}
                   placeholder="AAAA-MM-DD"
@@ -88,7 +88,6 @@ export default function Notificacoes() {
                 />
               </View>
 
-              {/* Campo para editar a mensagem */}
               <TextInput
                 style={styles.inputMensagem}
                 placeholder="Mensagem da notificação"
@@ -98,75 +97,83 @@ export default function Notificacoes() {
                 }
               />
 
-              {item.vencimento ? (
-                <Text style={styles.vencimento}>
-                  {ehHoje ? "📢 Vence hoje!" : `Vencimento: ${item.vencimento}`}
-                </Text>
-              ) : (
-                <Text style={styles.vencimento}>⏳ Defina uma data</Text>
-              )}
+              <Text style={styles.vencimento}>
+                {item.vencimento
+                  ? ehHoje
+                    ? "📢 Vence hoje!"
+                    : `Vencimento: ${item.vencimento}`
+                  : "⏳ Defina uma data"}
+              </Text>
             </View>
           );
-        }}
-      />
-    </View>
+        })}
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 16 },
+  scrollContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
   header: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     color: "#3f51b5",
-    marginBottom: 16,
+    marginBottom: 20,
     textAlign: "center",
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-start",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   nomeConta: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   nomeContaHoje: {
-    color: "#d32f2f", // vermelho se vence hoje
+    color: "#d32f2f",
   },
   inputData: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 8,
-    width: 120,
+    padding: 10,
+    width: 130,
     textAlign: "center",
     backgroundColor: "#fafafa",
-    marginRight: 8,
+    marginRight: 10,
+    fontSize: 16,
   },
   inputMensagem: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 8,
+    padding: 10,
     backgroundColor: "#fafafa",
-    fontSize: 14,
-    marginBottom: 6,
+    fontSize: 16,
+    marginBottom: 8,
   },
   notificacao: {
     backgroundColor: "#f5f5f5",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 12,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
   },
   notificacaoHoje: {
     backgroundColor: "#ffebee",
   },
   vencimento: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#555",
   },
 });

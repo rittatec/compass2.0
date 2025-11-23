@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, } from "react-native";
+import React, { useContext, useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useRenda } from "../context/RendaContext";
 import { alterarRenda } from "../services/alterarRenda";
@@ -7,34 +7,35 @@ import { UserContext } from "../context/userContext";
 
 export default function AlterarRenda() {
   const { rendaMensal, setRendaMensal } = useRenda();
-  const [novoValor, setNovoValor] = useState(formatCurrency(rendaMensal));
+  const [novoValor, setNovoValor] = useState(""); // string para input
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation<any>();
-
   const context = useContext(UserContext);
 
-  // Função de formatação em R$
-  function formatCurrency(value: number | string) {
-    if (!value) return "R$ 0,00";
-
-    // Mantém apenas números
-    const onlyNums = value.toString().replace(/\D/g, "");
-
-    // Divide por 100 para virar centavos
-    const numberValue = parseFloat(onlyNums) / 100;
-
-    return numberValue.toLocaleString("pt-BR", {
+  // Formata número em moeda BRL
+  const formatCurrency = (value: number) => {
+    return (value / 100).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
     });
-  }
+  };
+
+  // Atualiza input sempre que rendaMensal mudar
+  useEffect(() => {
+    if (rendaMensal !== null && rendaMensal !== undefined) {
+      setNovoValor(formatCurrency(rendaMensal * 100)); // multiplica por 100 para centavos
+    }
+  }, [rendaMensal]);
 
   const handleChangeText = (text: string) => {
-    setNovoValor(formatCurrency(text));
+    // Remove tudo que não é número
+    const onlyNums = text.replace(/\D/g, "");
+    setNovoValor(formatCurrency(parseInt(onlyNums || "0")));
   };
 
   const handleSalvar = async () => {
-    const valorNumerico = Number(novoValor.replace(/\D/g, "")) / 100;
+    // Converte string de input para número
+    const valorNumerico = parseInt(novoValor.replace(/\D/g, "")) / 100;
 
     if (isNaN(valorNumerico) || valorNumerico <= 0) {
       Alert.alert("Erro", "Digite um valor válido!");
@@ -42,22 +43,15 @@ export default function AlterarRenda() {
     }
 
     setLoading(true);
-
     try {
-      // 1. Atualiza no banco
       const ok = await alterarRenda(valorNumerico, context?.user);
-
       if (!ok) return;
 
-      // 2. Atualiza no contexto
-      context?.setUser({
-        ...context.user,
-        renda: valorNumerico,
-      });
+      context?.setUser({ ...context.user, renda: valorNumerico });
+      setRendaMensal(valorNumerico);
 
       Alert.alert("Sucesso", "Renda mensal alterada!");
       navigation.goBack();
-
     } catch (error) {
       console.error("Erro ao salvar renda:", error);
       Alert.alert("Erro", "Erro ao salvar renda.");
@@ -132,7 +126,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   button: {
-    backgroundColor: "#34C759", // verde estilo iOS
+    backgroundColor: "#34C759",
     borderRadius: 25,
     paddingVertical: 12,
     paddingHorizontal: 30,
