@@ -14,11 +14,20 @@ import { Ionicons, MaterialIcons, MaterialCommunityIcons, FontAwesome } from "@e
 import { LinearGradient } from "expo-linear-gradient";
 import { useRenda } from "../context/RendaContext";
 import { UserContext } from "../context/userContext";
+import { api } from "../services/api";
+
+interface MovimentoType {
+  id: number,
+  data: Date,
+  valor: number,
+  tipo_movimento: string
+}
 
 export default function Menu() {
   const navigation = useNavigation<any>();
   const [contaNome, setContaNome] = useState<string | undefined>("Visitante")
   const [contaRenda, setContaRenda] = useState<number | undefined>(0)
+  const [ movimentos, setMovimentos ] = useState<MovimentoType[]>([]);
   const user = useContext(UserContext);
   const isFocused = useIsFocused();
 
@@ -26,6 +35,31 @@ export default function Menu() {
     if (isFocused) {
       setContaNome(user?.user.nome);
       setContaRenda(user?.user.renda);
+
+      carregarMovimentosARenda();
+    }
+
+    async function carregarMovimentosARenda() {
+      try {
+        const response = await api.get<MovimentoType[]>("movimentos")
+        const listaDeMovimentos = response.data
+
+        setMovimentos(listaDeMovimentos);
+
+        let novaRenda = user?.user.renda ?? 0;
+
+        listaDeMovimentos.forEach(item => {
+          if(item.tipo_movimento === "DEBITAR") {
+            novaRenda = novaRenda - item.valor
+          } else if(item.tipo_movimento === "CREDITAR") {
+            novaRenda = novaRenda + item.valor
+          }
+        })
+
+        setContaRenda(novaRenda)
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, [isFocused, user]);
 
