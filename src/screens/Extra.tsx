@@ -2,7 +2,7 @@ import { useRenda } from "../context/RendaContext";
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarDebito } from "../services/categoriaService";
+import { salvarMovimento } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
 type RootStackParamList = {
@@ -15,7 +15,9 @@ export default function Extra() {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const contexto = useContext(UserContext);
+
   const category = "Extra";
+  const tipo_movimento = "CREDITAR"
 
   // ---------- MESMA FUNÇÃO DO WIFI ----------
   function formatCurrency(value: number) {
@@ -40,7 +42,7 @@ export default function Extra() {
     }
 
     try {
-      await salvarDebito({ amount: rawValue, category }, contexto);
+      await salvarMovimento({ amount: rawValue, category }, contexto, tipo_movimento);
 
       Alert.alert("Sucesso", `Valor de renda extra salvo: ${formatCurrency(rawValue)}`);
       navigation.navigate("Menu");

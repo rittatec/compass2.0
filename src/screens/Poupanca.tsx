@@ -2,7 +2,7 @@ import { useRenda } from "../context/RendaContext";
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarDebito } from "../services/categoriaService";
+import { salvarMovimento } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
 type RootStackParamList = {
@@ -15,6 +15,7 @@ export default function Poupanca() {
   const contexto = useContext(UserContext);
 
   const category = "Poupança";
+  const tipo_movimento =  "CREDITAR"
 
   // ---- Formatação da moeda ----
   function formatInputCurrency(text: string) {
@@ -44,7 +45,7 @@ export default function Poupanca() {
     }
 
     try {
-      await salvarDebito({ amount: numericValue, category }, contexto);
+      await salvarMovimento({ amount: numericValue, category }, contexto, tipo_movimento);
 
       Alert.alert(
         "Sucesso",

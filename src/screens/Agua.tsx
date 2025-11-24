@@ -2,7 +2,7 @@ import { useRenda } from "../context/RendaContext";
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { salvarDebito } from "../services/categoriaService";
+import { salvarMovimento } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
 type RootStackParamList = {
@@ -16,6 +16,8 @@ export default function Agua() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const category = "Água";
+  const tipo_movimento = "DEBITAR"
+
   const contexto = useContext(UserContext);
 
   // --- mesma formatação das outras telas ---
@@ -41,7 +43,7 @@ export default function Agua() {
     }
 
     try {
-      await salvarDebito({ amount: rawValue, category }, contexto);
+      await salvarMovimento({ amount: rawValue, category }, contexto, tipo_movimento);
 
       Alert.alert("Sucesso", `Valor de água salvo: ${formatCurrency(rawValue)}`);
       navigation.navigate("Menu");

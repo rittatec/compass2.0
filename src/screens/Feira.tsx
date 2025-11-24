@@ -5,6 +5,7 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { salvarFeira } from '../services/feiraService'; // serviço
 import { UserContext } from "../context/userContext";
 import { useContext } from "react";
+import { salvarMovimento } from "../services/categoriaService";
 
 type RootStackParamList = {
   Menu: undefined;
@@ -16,6 +17,9 @@ export default function Feira() {
   const { rendaMensal, debitarRenda } = useRenda();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const contexto = useContext(UserContext);
+
+  const category = "Feira"
+  const tipo_movimento = "DEBITAR"
 
   function formatCurrency(value: number) {
     return value.toLocaleString("pt-BR", {
@@ -39,7 +43,7 @@ export default function Feira() {
     }
 
     try {
-      await salvarFeira({ amount: rawValue });
+      await salvarMovimento({ amount: rawValue, category }, contexto, tipo_movimento);
       debitarRenda(rawValue);
 
       Alert.alert("Sucesso", `Valor da Feira salvo: ${formatCurrency(rawValue)}`);

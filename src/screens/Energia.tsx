@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { salvarEnergia } from '../services/energiaService';
-import { salvarDebito } from "../services/categoriaService";
+import { salvarMovimento } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
 type RootStackParamList = {
@@ -16,6 +16,7 @@ export default function Energia() {
   const contexto = useContext(UserContext);
 
   const category = "Energia";
+  const tipo_movimento = "DEBITAR"
 
   function formatInputCurrency(text: string) {
     const onlyNums = text.replace(/\D/g, ""); // limpa tudo que não for número
@@ -45,7 +46,7 @@ export default function Energia() {
     }
 
     try {
-      await salvarDebito({ amount: numericValue, category }, contexto);
+      await salvarMovimento({ amount: numericValue, category }, contexto, tipo_movimento);
 
       Alert.alert("Sucesso", `Valor de energia salvo: R$ ${numericValue.toFixed(2)}`);
       navigation.navigate("Menu");

@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { salvarSaude } from '../services/saudeService';
-import { salvarDebito } from "../services/categoriaService";
+import { salvarMovimento } from "../services/categoriaService";
 import { UserContext } from "../context/userContext";
 
 type RootStackParamList = {
@@ -16,6 +16,7 @@ export default function Saude() {
   const contexto = useContext(UserContext);
 
   const category = "Saúde";
+  const tipo_movimento = "DEBITAR"
 
   // ---- Formatação do campo ----
   function formatInputCurrency(text: string) {
@@ -46,7 +47,7 @@ export default function Saude() {
     }
 
     try {
-      await salvarDebito({ amount: numericValue, category }, contexto);
+      await salvarMovimento({ amount: numericValue, category }, contexto, tipo_movimento);
 
       Alert.alert(
         "Sucesso",

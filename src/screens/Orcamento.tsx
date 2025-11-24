@@ -18,84 +18,63 @@ import { getPoupanca } from "../services/poupancaService";
 import { getReceber } from "../services/receberService";
 import { getExtra } from "../services/extraService";
 import { getInvestido } from "../services/investidoService";
+import { getMovimentos, getCategoriaById } from "../services/movimentosService";
 
-type Categoria = {
-  id: string;
-  nome: string;
-  valor: number;
-  tipo: "despesa" | "receita";
-  data?: string;
-};
+interface MovimentoType {
+  id: number,
+  data: string,
+  valor: number,
+  tipo_movimento: string,
+  idConta: number,
+  idCategoria: number,
+  categoria?: string,
+}
+
+/* interface MovsComCategoriaType {
+  id: number,
+  data: string,
+  valor: number,
+  tipo_movimento: string,
+  idConta: number,
+  categoria?: string
+} */
 
 export default function Orcamento() {
   const { rendaMensal } = useRenda();
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [categorias, setCategorias] = useState<MovimentoType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const carregar = async () => {
-      try {
-        const [
-          wifi,
-          energia,
-          agua,
-          feira,
-          saude,
-          poupanca,
-          receber,
-          extra,
-          investido,
-        ] = await Promise.all([
-          getWifi(),
-          getEnergia(),
-          getAgua(),
-          getFeira(),
-          getSaude(),
-          getPoupanca(),
-          getReceber(),
-          getExtra(),
-          getInvestido(),
-        ]);
-
-        const agora = new Date();
-        const dataHora = agora.toLocaleString("pt-BR");
-
-        setCategorias([
-          { id: "wifi", nome: "Wifi", valor: wifi.amount || 0, tipo: "despesa", data: dataHora },
-          { id: "energia", nome: "Energia", valor: energia.amount || 0, tipo: "despesa", data: dataHora },
-          { id: "agua", nome: "Água", valor: agua.amount || 0, tipo: "despesa", data: dataHora },
-          { id: "feira", nome: "Feira", valor: feira.amount || 0, tipo: "despesa", data: dataHora },
-          { id: "saude", nome: "Saúde", valor: saude.amount || 0, tipo: "despesa", data: dataHora },
-          { id: "poupanca", nome: "Poupança", valor: poupanca.amount || 0, tipo: "despesa", data: dataHora },
-          { id: "investido", nome: "Investido", valor: investido.amount || 0, tipo: "despesa", data: dataHora },
-          { id: "extra", nome: "Extra", valor: extra.amount || 0, tipo: "receita", data: dataHora },
-          { id: "receber", nome: "Receber", valor: receber.amount || 0, tipo: "receita", data: dataHora },
-        ]);
-      } catch (e) {
-        console.error("Erro ao carregar orçamento:", e);
-      } finally {
+    useEffect(() => {
+      async function getCategorias() {
+        const listaDeMovimentos = await getMovimentos();
+            const movsComCategoria = await Promise.all(
+                listaDeMovimentos.map(async (m: MovimentoType) => ({
+                ...m,
+                categoria: await getCategoriaById(m.idCategoria),
+              }))
+            ) ;
+        setCategorias(movsComCategoria);
         setLoading(false);
       }
-    };
 
-    carregar();
-  }, []);
+      getCategorias();
+    }, []);
 
-  if (loading) {
+  const totalEntradas = categorias
+    .filter((c) => c.tipo_movimento === "CREDITAR")
+    .reduce((acc, c) => acc + c.valor, 0);
+
+  const totalSaidas = categorias
+    .filter((c) => c.tipo_movimento === "DEBITAR")
+    .reduce((acc, c) => acc + c.valor, 0);
+
+/*   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#3A53A4" />
       </View>
     );
-  }
-
-  const totalEntradas = categorias
-    .filter((c) => c.tipo === "receita")
-    .reduce((acc, c) => acc + c.valor, 0);
-
-  const totalSaidas = categorias
-    .filter((c) => c.tipo === "despesa")
-    .reduce((acc, c) => acc + c.valor, 0);
+  } */
 
   return (
     <View style={styles.container}>
@@ -108,20 +87,20 @@ export default function Orcamento() {
       <View style={styles.listContainer}>
         <FlatList
           data={categorias}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.row}>
               <View>
-                <Text style={styles.catName}>{item.nome}</Text>
+                <Text style={styles.catName}>{item.categoria}</Text>
                 <Text style={styles.date}>{item.data}</Text>
               </View>
               <Text
                 style={[
                   styles.catValue,
-                  { color: item.tipo === "despesa" ? "red" : "green" },
+                  { color: item.tipo_movimento === "DEBITAR" ? "red" : "green" },
                 ]}
               >
-                {item.tipo === "despesa" ? "-" : "+"} R$ {item.valor.toFixed(2)}
+                {item.tipo_movimento === "DEBITAR" ? "-" : "+"} R$ {item.valor.toFixed(2)}
               </Text>
             </View>
           )}
