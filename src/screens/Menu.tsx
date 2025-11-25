@@ -14,6 +14,8 @@ import { Ionicons, MaterialIcons, MaterialCommunityIcons, FontAwesome } from "@e
 import { LinearGradient } from "expo-linear-gradient";
 import { UserContext } from "../context/userContext";
 
+import { atualizarRenda } from "../services/categoriaService"; 
+
 export default function Menu() {
   const navigation = useNavigation<any>();
   const user = useContext(UserContext);
@@ -27,6 +29,12 @@ export default function Menu() {
       setContaNome(user.user.nome);
       setContaRenda(user.user.renda);  // exibe o valor REAL vindo do backend
     }
+    async function getNovaRenda() {
+      const responseAtualizarRenda = await atualizarRenda(user);
+      setContaRenda(responseAtualizarRenda)
+    }
+
+    getNovaRenda();
   }, [isFocused, user]);
 
   const pagamentos = [

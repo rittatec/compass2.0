@@ -15,7 +15,7 @@ export default function Poupanca() {
   const contexto = useContext(UserContext);
 
   const category = "Poupança";
-  const tipo_movimento =  "CREDITAR"
+  const tipo_movimento =  "DEBITAR"
 
   // ---- Formatação da moeda ----
   function formatInputCurrency(text: string) {

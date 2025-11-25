@@ -6,7 +6,7 @@ interface UserType {
   renda: number;
 }
 
-interface ContextType {
+export interface ContextType {
   user: UserType;
   setUser: (user: Partial<UserType>) => void;
 }
