@@ -17,11 +17,11 @@ export default function Login() {
   const user = useContext(UserContext);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    async function getResponse() {
-      const response = await api.get("/conta/por_usuario/{idUsuario}");
-    }
-  }, []);
+  // useEffect(() => {
+  //   async function getResponse() {
+  //     const response = await api.get("/conta/por_usuario/{idUsuario}");
+  //   }
+  // }, []);
 
   const handleLogin = async () => {
     try {

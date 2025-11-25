@@ -12,70 +12,36 @@ import type { ColorValue } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Ionicons, MaterialIcons, MaterialCommunityIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRenda } from "../context/RendaContext";
 import { UserContext } from "../context/userContext";
-import { api } from "../services/api";
-
-interface MovimentoType {
-  id: number,
-  data: Date,
-  valor: number,
-  tipo_movimento: string
-}
 
 export default function Menu() {
   const navigation = useNavigation<any>();
-  const [contaNome, setContaNome] = useState<string | undefined>("Visitante")
-  const [contaRenda, setContaRenda] = useState<number | undefined>(0)
-  const [ movimentos, setMovimentos ] = useState<MovimentoType[]>([]);
   const user = useContext(UserContext);
   const isFocused = useIsFocused();
 
+  const [contaNome, setContaNome] = useState<string>("Visitante");
+  const [contaRenda, setContaRenda] = useState<number>(0);
+
   useEffect(() => {
-    if (isFocused) {
-      setContaNome(user?.user.nome);
-      setContaRenda(user?.user.renda);
-
-      carregarMovimentosARenda();
-    }
-
-    async function carregarMovimentosARenda() {
-      try {
-        const response = await api.get<MovimentoType[]>("movimentos")
-        const listaDeMovimentos = response.data
-
-        setMovimentos(listaDeMovimentos);
-
-        let novaRenda = user?.user.renda ?? 0;
-
-        listaDeMovimentos.forEach(item => {
-          if(item.tipo_movimento === "DEBITAR") {
-            novaRenda = novaRenda - item.valor
-          } else if(item.tipo_movimento === "CREDITAR") {
-            novaRenda = novaRenda + item.valor
-          }
-        })
-
-        setContaRenda(novaRenda)
-      } catch (e) {
-        console.error(e);
-      }
+    if (isFocused && user?.user) {
+      setContaNome(user.user.nome);
+      setContaRenda(user.user.renda);  // exibe o valor REAL vindo do backend
     }
   }, [isFocused, user]);
 
   const pagamentos = [
-    { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"] as readonly [ColorValue, ColorValue], screen: "Agua" },
-    { name: "Energia", icon: <MaterialIcons name="bolt" size={35} color="#fff" />, colors: ["#4CAF50", "#2E7D32"] as readonly [ColorValue, ColorValue], screen: "Energia" },
-    { name: "Wi-Fi", icon: <Ionicons name="wifi" size={35} color="#fff" />, colors: ["#BA68C8", "#6A1B9A"] as readonly [ColorValue, ColorValue], screen: "Wifi" },
-    { name: "Feira", icon: <MaterialIcons name="restaurant" size={35} color="#fff" />, colors: ["#FF8A65", "#D84315"] as readonly [ColorValue, ColorValue], screen: "Feira" },
+    { name: "Água", icon: <Ionicons name="water" size={35} color="#fff" />, colors: ["#4DB6FF", "#1976D2"] as const, screen: "Agua" },
+    { name: "Energia", icon: <MaterialIcons name="bolt" size={35} color="#fff" />, colors: ["#4CAF50", "#2E7D32"] as const, screen: "Energia" },
+    { name: "Wi-Fi", icon: <Ionicons name="wifi" size={35} color="#fff" />, colors: ["#BA68C8", "#6A1B9A"] as const, screen: "Wifi" },
+    { name: "Feira", icon: <MaterialIcons name="restaurant" size={35} color="#fff" />, colors: ["#FF8A65", "#D84315"] as const, screen: "Feira" },
   ];
 
   const categorias = [
-    { name: "Extra", icon: <MaterialIcons name="attach-money" size={28} color="#fff" />, colors: ["#8E24AA", "#4A148C"] as readonly [ColorValue, ColorValue], screen: "Extra" },
-    { name: "Poupança", icon: <FontAwesome name="bank" size={28} color="#fff" />, colors: ["#26A69A", "#004D40"] as readonly [ColorValue, ColorValue], screen: "Poupanca" },
-    { name: "Investido", icon: <MaterialCommunityIcons name="finance" size={28} color="#fff" />, colors: ["#FFD54F", "#F57F17"] as readonly [ColorValue, ColorValue], screen: "Investido" },
-    { name: "Receber", icon: <MaterialCommunityIcons name="cash-plus" size={28} color="#fff" />, colors: ["#FF7043", "#BF360C"] as readonly [ColorValue, ColorValue], screen: "Receber" },
-    { name: "Saúde", icon: <FontAwesome name="heartbeat" size={28} color="#fff" />, colors: ["#E91E63", "#880E4F"] as readonly [ColorValue, ColorValue], screen: "Saude" },
+    { name: "Extra", icon: <MaterialIcons name="attach-money" size={28} color="#fff" />, colors: ["#8E24AA", "#4A148C"] as const, screen: "Extra" },
+    { name: "Poupança", icon: <FontAwesome name="bank" size={28} color="#fff" />, colors: ["#26A69A", "#004D40"] as const, screen: "Poupanca" },
+    { name: "Investido", icon: <MaterialCommunityIcons name="finance" size={28} color="#fff" />, colors: ["#FFD54F", "#F57F17"] as const, screen: "Investido" },
+    { name: "Receber", icon: <MaterialCommunityIcons name="cash-plus" size={28} color="#fff" />, colors: ["#FF7043", "#BF360C"] as const, screen: "Receber" },
+    { name: "Saúde", icon: <FontAwesome name="heartbeat" size={28} color="#fff" />, colors: ["#E91E63", "#880E4F"] as const, screen: "Saude" },
   ];
 
   const screenHeight = Dimensions.get("window").height;
@@ -91,8 +57,11 @@ export default function Menu() {
         <View style={[styles.card, styles.shadow]}>
           <View>
             <Text style={styles.cardTitle}>Renda Mensal</Text>
-            <Text style={styles.cardValue}>R$ {contaRenda?.toFixed(2)}</Text>
+
+            {/* 🔥 Agora mostra exatamente o valor que o backend salvou */}
+            <Text style={styles.cardValue}>R$ {contaRenda.toFixed(2)}</Text>
           </View>
+
           <TouchableOpacity
             style={styles.buttonAlterar}
             onPress={() => navigation.navigate("AlterarRenda")}
@@ -104,11 +73,7 @@ export default function Menu() {
         <Text style={styles.sectionTitle}>Pagamentos mensais</Text>
         <View style={styles.grid}>
           {pagamentos.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.item}
-              onPress={() => navigation.navigate(item.screen)}
-            >
+            <TouchableOpacity key={index} style={styles.item} onPress={() => navigation.navigate(item.screen)}>
               <LinearGradient colors={item.colors} style={[styles.gradient, styles.shadow]}>
                 {item.icon}
               </LinearGradient>
@@ -120,11 +85,7 @@ export default function Menu() {
         <Text style={styles.sectionTitle}>Categorias</Text>
         <View style={styles.grid}>
           {categorias.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.item}
-              onPress={() => navigation.navigate(item.screen)}
-            >
+            <TouchableOpacity key={index} style={styles.item} onPress={() => navigation.navigate(item.screen)}>
               <LinearGradient colors={item.colors} style={[styles.gradient, styles.shadow]}>
                 {item.icon}
               </LinearGradient>

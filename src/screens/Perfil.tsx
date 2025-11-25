@@ -11,19 +11,15 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-type PerfilType = {
-  foto: string | null;
-  nome: string;
-  nascimento: string;
-  email: string;
-  telefone: string;
-};
+import { PerfilService, PerfilResponse } from "../services/PerfilService";
 
 export default function Perfil() {
-  const [perfil, setPerfil] = useState<PerfilType>({
+  const [usuarioId, setUsuarioId] = useState<number | null>(null);
+
+  const [perfil, setPerfil] = useState<PerfilResponse>({
     foto: null,
     nome: "",
     nascimento: "",
@@ -31,35 +27,118 @@ export default function Perfil() {
     telefone: "",
   });
 
+  // ---------------------- FORMATAÇÕES ----------------------
+
+  const formatarData = (texto: string) => {
+    const n = texto.replace(/\D/g, "");
+
+    if (n.length <= 2) return n;
+    if (n.length <= 4) return n.replace(/(\d{2})(\d{0,2})/, "$1/$2");
+
+    return n.replace(/(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
+  };
+
+  const formatarTelefone = (texto: string) => {
+    let n = texto.replace(/\D/g, "");
+
+    // Limita tamanho máximo (DDD + 9 dígitos)
+    if (n.length > 11) n = n.slice(0, 11);
+
+    // (XX
+    if (n.length <= 2) return `(${n}`;
+
+    // (XX) 9
+    if (n.length <= 7)
+      return `(${n.slice(0, 2)}) ${n.slice(2)}`;
+
+    // (XX) 99999-9999
+    return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
+  };
+
+
+  // ----------------------------------------------------------
+
   useEffect(() => {
-    const carregarPerfil = async () => {
-      try {
-        const dados = await AsyncStorage.getItem("perfil");
-        if (dados) setPerfil(JSON.parse(dados));
-      } catch (e) {
-        console.log("Erro ao carregar perfil:", e);
-      }
-    };
     carregarPerfil();
   }, []);
 
-  const salvarPerfil = async () => {
+  const carregarPerfil = async () => {
     try {
-      await AsyncStorage.setItem("perfil", JSON.stringify(perfil));
-      Alert.alert("Perfil salvo!", "Seus dados foram atualizados.");
+      const userId = await AsyncStorage.getItem("userId");
+
+      if (!userId) {
+        console.log("Usuário não encontrado no AsyncStorage.");
+        return;
+      }
+
+      const idConvertido = Number(userId);
+      setUsuarioId(idConvertido);
+
+      const dados = await PerfilService.buscarPerfil(idConvertido);
+
+      if (!dados) {
+        console.log("Perfil não encontrado no backend");
+        return;
+      }
+
+      setPerfil({
+        foto: dados.foto ?? null,
+        nome: dados.nome ?? "",
+        nascimento: dados.nascimento ? formatarData(dados.nascimento) : "",
+        email: dados.email ?? "",
+        telefone: dados.telefone ? formatarTelefone(dados.telefone) : "",
+      });
+
+      await AsyncStorage.setItem("perfil", JSON.stringify(dados));
+
     } catch (e) {
-      console.log("Erro ao salvar perfil:", e);
+      console.log("Backend offline. Buscando perfil salvo localmente...");
+
+      const local = await AsyncStorage.getItem("perfil");
+      if (local) setPerfil(JSON.parse(local));
+    }
+  };
+
+  const salvarPerfil = async () => {
+    if (!usuarioId) {
+      Alert.alert("Erro", "Usuário não encontrado.");
+      return;
+    }
+
+    try {
+      await PerfilService.atualizarPerfil(usuarioId, perfil);
+      await AsyncStorage.setItem("perfil", JSON.stringify(perfil));
+
+      Alert.alert("Sucesso!", "Seu perfil foi atualizado.");
+    } catch (e) {
+      console.log("Erro ao salvar:", e);
+      Alert.alert("Erro", "Não foi possível salvar no servidor.");
     }
   };
 
   const selecionarImagem = async () => {
+    if (!usuarioId) {
+      Alert.alert("Erro", "Usuário não encontrado.");
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
 
     if (!result.canceled) {
-      setPerfil({ ...perfil, foto: result.assets[0].uri });
+      const uri = result.assets[0].uri;
+
+      setPerfil((prev) => ({ ...prev, foto: uri }));
+
+      try {
+        await PerfilService.enviarImagem(usuarioId, uri);
+        Alert.alert("Imagem enviada com sucesso!");
+      } catch (error) {
+        console.log(error);
+        Alert.alert("Erro", "Não foi possível enviar a imagem.");
+      }
     }
   };
 
@@ -72,8 +151,7 @@ export default function Perfil() {
         contentContainerStyle={styles.scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Espaço superior para deixar mais confortável */}
-        <View style={{ height:150 }} />
+        <View style={{ height: 150 }} />
 
         <TouchableOpacity onPress={selecionarImagem} style={{ alignItems: "center" }}>
           <Image
@@ -84,6 +162,7 @@ export default function Perfil() {
             }
             style={styles.avatar}
           />
+
           <Text style={styles.alterarFoto}>Alterar Foto</Text>
         </TouchableOpacity>
 
@@ -94,11 +173,14 @@ export default function Perfil() {
           onChangeText={(text) => setPerfil({ ...perfil, nome: text })}
         />
 
+        {/* DATA DE NASCIMENTO FORMATADA */}
         <TextInput
           style={styles.input}
-          placeholder="Data de Nascimento (AAAA-MM-DD)"
+          placeholder="Data de Nascimento (DD/MM/AAAA)"
           value={perfil.nascimento}
-          onChangeText={(text) => setPerfil({ ...perfil, nascimento: text })}
+          onChangeText={(text) =>
+            setPerfil({ ...perfil, nascimento: formatarData(text) })
+          }
         />
 
         <TextInput
@@ -109,19 +191,21 @@ export default function Perfil() {
           onChangeText={(text) => setPerfil({ ...perfil, email: text })}
         />
 
+        {/* TELEFONE FORMATADO */}
         <TextInput
           style={styles.input}
           placeholder="Telefone"
           value={perfil.telefone}
           keyboardType="phone-pad"
-          onChangeText={(text) => setPerfil({ ...perfil, telefone: text })}
+          onChangeText={(text) =>
+            setPerfil({ ...perfil, telefone: formatarTelefone(text) })
+          }
         />
 
         <TouchableOpacity style={styles.button} onPress={salvarPerfil}>
           <Text style={styles.buttonText}>Salvar Perfil</Text>
         </TouchableOpacity>
 
-        {/* Espaço inferior para não colar no final */}
         <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>
