@@ -6,6 +6,6 @@ yarn-error.log
 .expo-shared/
 dist/
 build/
-.env
+*.env
 .DS_Store
 *.log
